@@ -4,6 +4,8 @@ apply plugin: 'kotlin-android'
 
 apply plugin: 'kotlin-android-extensions'
 
+apply plugin: 'kotlin-kapt'
+
 android {
     compileSdkVersion 29
     buildToolsVersion "29.0.2"
@@ -23,12 +25,60 @@ android {
     }
 }
 
+ext {
+    androidSupportVersion = '29.0.2'
+    daggerVersion = '2.24'
+    retrofitVersion = '2.5.0'
+    okhttpVersion = '3.4.1'
+    rxandroidVersion = '1.2.1'
+    rxjava2Version = '2.2.6'
+    kotlinTestVersion = '3.3.3'
+    coroutinesVersion = '1.3.0-M2'
+}
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation"org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.core:core-ktx:1.1.0'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    implementation 'com.google.android.material:material:1.2.0-alpha04'
+    implementation 'com.android.support.constraint:constraint-layout:1.3.0'
+    implementation "org.jetbrains.kotlin:kotlin-reflect:1.3.61"
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
+
+    // Unit Test
+    testImplementation "io.kotlintest:kotlintest-core:$kotlinTestVersion"
+    testImplementation "io.kotlintest:kotlintest-assertions:$kotlinTestVersion"
+    testImplementation "io.kotlintest:kotlintest-runner-junit5:$kotlinTestVersion"
+    testImplementation("com.nhaarman:mockito-kotlin:1.4.0")
+    testImplementation "android.arch.core:core-testing:1.1.1"
+
+    //Dagger 2
+    api "com.google.dagger:dagger-android:${daggerVersion}"
+    api "com.google.dagger:dagger-android-support:${daggerVersion}"
+    annotationProcessor "com.google.dagger:dagger-android-processor:${daggerVersion}"
+    annotationProcessor "com.google.dagger:dagger-compiler:${daggerVersion}"
+    kapt "com.google.dagger:dagger-android-processor:${daggerVersion}"
+    kapt "com.google.dagger:dagger-compiler:${daggerVersion}"
+
+    // Network
+    implementation "com.squareup.okhttp3:okhttp:$okhttpVersion"
+    implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofitVersion"
+    implementation "com.squareup.retrofit2:adapter-rxjava2:$retrofitVersion"
+    implementation "com.squareup.okhttp3:logging-interceptor:$okhttpVersion"
+
+    // ReactiveX
+    implementation "io.reactivex.rxjava2:rxjava:${rxjava2Version}"
+    implementation "io.reactivex:rxandroid:${rxandroidVersion}"
+
+    // coroutines
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
+
+    // Permission
+    implementation 'pub.devrel:easypermissions:1.1.1'
 }
