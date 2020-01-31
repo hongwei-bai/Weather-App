@@ -20,4 +20,8 @@ object LocalProperties : CommonLocalProperties() {
         const val API_KEY = "9ba46ef8a53abd8397757ceb374ec4d3"
         val API_PATHS = ApiPath
     }
+
+    object Local {
+        const val CITY_LIST = "city.list.json"
+    }
 }

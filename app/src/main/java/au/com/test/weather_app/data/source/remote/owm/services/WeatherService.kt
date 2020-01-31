@@ -1,14 +1,21 @@
 package au.com.test.weather_app.data.source.remote.owm.services
 
 import au.com.test.weather_app.LocalProperties
-import au.com.test.weather_app.data.source.remote.owm.model.WeatherRepsonse
+import au.com.test.weather_app.data.source.remote.owm.models.WeatherRepsonse
 import io.reactivex.Observable
 import retrofit2.http.GET
-import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface WeatherService {
-    //api.openweathermap.org/data/2.5/weather?q={city name}
-    //api.openweathermap.org/data/2.5/weather?q={city name},{country code}
     @GET(LocalProperties.Network.API_PATHS.WEATHER)
-    fun getWeather(@Path("cityName") cityName: String): Observable<WeatherRepsonse>
+    fun getWeatherByCityName(@Query("q") cityName: String): Observable<WeatherRepsonse>
+
+    @GET(LocalProperties.Network.API_PATHS.WEATHER)
+    fun getWeatherById(@Query("id") id: Long): Observable<WeatherRepsonse>
+
+    @GET(LocalProperties.Network.API_PATHS.WEATHER)
+    fun getWeatherByCoordinate(@Query("lat") lat: Double, @Query("lon") lon: Double): Observable<WeatherRepsonse>
+
+    @GET(LocalProperties.Network.API_PATHS.WEATHER)
+    fun getWeatherByZipCode(@Query("zip") zipCode: String): Observable<WeatherRepsonse>
 }

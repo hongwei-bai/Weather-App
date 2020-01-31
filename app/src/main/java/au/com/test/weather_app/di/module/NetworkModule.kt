@@ -1,12 +1,15 @@
 package au.com.test.weather_app.di.module
 
 import au.com.test.weather_app.LocalProperties
+import au.com.test.weather_app.data.source.remote.owm.interceptors.OpenWeatherMapInterceptor
 import au.com.test.weather_app.data.source.remote.owm.services.WeatherService
+import au.com.test.weather_app.util.Logger
 import au.com.test.weather_app.util.UtcDateAdapter
 import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
 import io.reactivex.schedulers.Schedulers
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -19,10 +22,16 @@ import javax.inject.Singleton
 @Module
 class NetworkModule {
 
+    companion object {
+        private val TAG = Logger.TAG_APP + "OkHttp"
+    }
+
     @Provides
     @Singleton
-    fun provideLoggingInterceptor(): HttpLoggingInterceptor {
-        val loggingInterceptor = HttpLoggingInterceptor()
+    fun provideLoggingInterceptor(
+        logger: Logger
+    ): HttpLoggingInterceptor {
+        val loggingInterceptor = HttpLoggingInterceptor { logger.i(TAG, it) }
         loggingInterceptor.level = HttpLoggingInterceptor.Level.NONE
 
         if (LocalProperties.IS_LOGGING_ENABLED) {
@@ -32,12 +41,18 @@ class NetworkModule {
         return loggingInterceptor
     }
 
+    @Provides
+    @Singleton
+    fun provideApiInterceptor(): Interceptor = OpenWeatherMapInterceptor()
+
     @Singleton
     @Provides
     fun provideOkHttp(
+        apiInterceptor: OpenWeatherMapInterceptor,
         loggingInterceptor: HttpLoggingInterceptor
     ): OkHttpClient {
         val builder = OkHttpClient().newBuilder()
+            .addInterceptor(apiInterceptor)
             .addInterceptor(loggingInterceptor)
             .connectTimeout(LocalProperties.Network.API_CONNECT_TIMEOUT, TimeUnit.SECONDS)
             .readTimeout(LocalProperties.Network.API_READ_TIMEOUT, TimeUnit.SECONDS)
