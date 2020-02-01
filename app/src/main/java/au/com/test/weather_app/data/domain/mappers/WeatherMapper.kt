@@ -7,6 +7,7 @@ object WeatherMapper {
     fun mapToDomainEntities(response: WeatherRepsonse): WeatherData? =
         if (response.isSuccess()) {
             WeatherData(
+                id = 0,
                 cityId = if (response.id > 0) response.id else null,
                 cityName = if (response.name.isNotBlank()) response.name else null,
                 latitude = response.coord.lat,

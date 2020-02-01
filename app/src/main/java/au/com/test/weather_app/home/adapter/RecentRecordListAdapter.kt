@@ -4,6 +4,8 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.paging.PagedListAdapter
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import au.com.test.weather_app.LocalProperties
 import au.com.test.weather_app.R
@@ -14,7 +16,8 @@ import au.com.test.weather_app.util.TemperatureUtil
 import kotlinx.android.synthetic.main.layout_weather_item.view.*
 import kotlin.math.roundToInt
 
-class RecentRecordListAdapter(private val context: Context) : RecyclerView.Adapter<RecentRecordItemHolder>() {
+class RecentRecordListAdapter(private val context: Context) :
+    PagedListAdapter<WeatherData, RecentRecordItemHolder>(diffCallback) {
     private var onItemClickListener: ((Int, WeatherData) -> Unit)? = null
 
     var data: List<WeatherData> = emptyList()
@@ -45,9 +48,27 @@ class RecentRecordListAdapter(private val context: Context) : RecyclerView.Adapt
                 )
                 GlideApp.with(imgIcon).load(iconUrl).into(imgIcon)
 
-                txtTitle.text = data.getTitle(context)
+                if (data.cityName != null) {
+                    txtTitle.text = data.cityName
+                    txtTitle.visibility = View.VISIBLE
+                    imgGpsIcon.visibility = View.GONE
+                    txtGpsLocation.visibility = View.GONE
+                } else {
+                    txtTitle.text = ""
+                    txtTitle.visibility = View.INVISIBLE
+                    imgGpsIcon.visibility = View.VISIBLE
+                    txtGpsLocation.visibility = View.VISIBLE
+                    txtGpsLocation.text = itemView.resources.getString(
+                        R.string.gps_location,
+                        data.latitude,
+                        data.longitude
+                    )
+                }
                 txtMain.text = data.weather
-                txtTemperature.text = resources.getString(R.string.celsius, TemperatureUtil.kalvinToCelsius(data.temperature).roundToInt())
+                txtTemperature.text = resources.getString(
+                    R.string.celsius,
+                    TemperatureUtil.kalvinToCelsius(data.temperature).roundToInt()
+                )
 
                 setOnItemClickListener(position, data, listener)
             }
@@ -61,6 +82,16 @@ class RecentRecordListAdapter(private val context: Context) : RecyclerView.Adapt
             itemView.setOnClickListener {
                 listener?.invoke(position, data)
             }
+        }
+    }
+
+    companion object {
+        private val diffCallback = object : DiffUtil.ItemCallback<WeatherData>() {
+            override fun areItemsTheSame(oldItem: WeatherData, newItem: WeatherData): Boolean =
+                oldItem.id == newItem.id
+
+            override fun areContentsTheSame(oldItem: WeatherData, newItem: WeatherData): Boolean =
+                oldItem == newItem
         }
     }
 }

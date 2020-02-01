@@ -4,8 +4,8 @@ import android.Manifest
 import android.content.Context
 import android.location.LocationManager
 import android.os.Bundle
-import android.util.Log
 import android.view.View
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.DividerItemDecoration.VERTICAL
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -21,9 +21,6 @@ import au.com.test.weather_app.util.TemperatureUtil
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.layout_searchbar.*
 import kotlinx.android.synthetic.main.layout_weather_big.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import pub.devrel.easypermissions.EasyPermissions
 import javax.inject.Inject
 import kotlin.math.roundToInt
@@ -35,6 +32,8 @@ class MainActivity : BaseActivity() {
         private const val REQUEST_CODE_LOCATION = 444
     }
 
+    private val context: Context = this
+
     @Inject
     lateinit var viewModel: MainActivityViewModel
 
@@ -45,6 +44,7 @@ class MainActivity : BaseActivity() {
         setContentView(R.layout.activity_home)
 
         viewModel = getViewModelProvider(this).get(MainActivityViewModel::class.java)
+        observeViewModelState()
     }
 
     override fun onResume() {
@@ -55,23 +55,28 @@ class MainActivity : BaseActivity() {
             setOnGpsButtonClick { getWeatherForCurrentLocation() }
         }
         initializeRecentRecordList()
+
+        viewModel.go()
     }
 
-    private fun onCurrentWeatherUpdate(data: WeatherData) {
-        val title = data.getTitle(this)
-        GlobalScope.launch(Dispatchers.Main) {
-            updateCurrentWeather(data)
-            layoutSearchbar.title = title
+    private fun observeViewModelState() {
+        viewModel.currentWeather.observe(this, Observer { currentWeather ->
+            updateCurrentWeather(currentWeather)
+            layoutSearchbar.title = currentWeather.cityName ?: getString(
+                R.string.unknown_location,
+                currentWeather.latitude,
+                currentWeather.longitude
+            )
             txtTitle.clearFocus()
             hideKeyboard()
-        }
-    }
+        })
 
-    private fun onRecentRecordListUpdate(list: List<WeatherData>) {
-        recentRecordListAdapter.apply {
-            data = list
-            notifyDataSetChanged()
-        }
+        viewModel.recentRecords.observe(this, Observer { recentRecords ->
+            recentRecordListAdapter.apply {
+                data = recentRecords
+                notifyDataSetChanged()
+            }
+        })
     }
 
     override fun onRequestPermissionsResult(
@@ -97,10 +102,6 @@ class MainActivity : BaseActivity() {
         recyclerRecent.layoutManager = LinearLayoutManager(this)
         recyclerRecent.adapter = recentRecordListAdapter
         recyclerRecent.addItemDecoration(DividerItemDecoration(this, VERTICAL))
-
-        recentRecordListAdapter.setOnItemClickListener { position, weatherData ->
-            Log.i("aaaa", "click: ${weatherData.cityName}")
-        }
     }
 
     private fun updateCurrentWeather(data: WeatherData) {
@@ -111,7 +112,10 @@ class MainActivity : BaseActivity() {
 
         txtMain.text = data.weather
         txtDescription.text = data.weatherDescription
-        txtTemperature.text = getString(R.string.celsius, TemperatureUtil.kalvinToCelsius(data.temperature).roundToInt())
+        txtTemperature.text = getString(
+            R.string.celsius,
+            TemperatureUtil.kalvinToCelsius(data.temperature).roundToInt()
+        )
         txtHumidity.text = getString(R.string.humidity, data.humidity)
         txtWind.text = getString(R.string.wind_speed, data.windSpeed.toString())
         divider.visibility = View.VISIBLE

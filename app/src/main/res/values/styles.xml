@@ -6,10 +6,6 @@
         <item name="colorAccent">@color/colorAAccent</item>
     </style>
 
-    <color name="colorAPrimary">#99CCFF</color>
-    <color name="colorAPrimaryDark">#FFFFFF</color>
-    <color name="colorAAccent">#666666</color>
-
     <style name="WeatherAppTheme.Text" parent="TextAppearance.MaterialComponents.Body1">
         <item name="android:textColor">@color/colorAAccent</item>
     </style>
@@ -32,5 +28,11 @@
     <style name="WeatherAppTheme.Current.Subtitle" parent="WeatherAppTheme.Text">
         <item name="android:textSize">12sp</item>
         <item name="android:textStyle">normal</item>
+    </style>
+
+    <style name="WeatherAppTheme.Current.Subtitle2" parent="WeatherAppTheme.Text">
+        <item name="android:textSize">11sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textColor">@color/colorMediumGrey</item>
     </style>
 </resources>

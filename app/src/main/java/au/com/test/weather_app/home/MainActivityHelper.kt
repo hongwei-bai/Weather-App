@@ -20,6 +20,7 @@ internal fun LocationManager.subscribeCurrentLocation(action: (location: Locatio
         object : LocationListener {
             override fun onLocationChanged(location: Location) {
                 action.invoke(location)
+                removeUpdates(this)
             }
 
             override fun onStatusChanged(provider: String?, status: Int, extra: Bundle?) {
@@ -36,6 +37,7 @@ internal fun LocationManager.subscribeCurrentLocation(action: (location: Locatio
 }
 
 internal fun BaseActivity.hideKeyboard() {
-    val imm: InputMethodManager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+    val imm: InputMethodManager =
+        getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
     imm.hideSoftInputFromWindow(window.decorView.windowToken, 0)
 }

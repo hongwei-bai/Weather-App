@@ -93,8 +93,11 @@ class LocationSearchToolBar : ConstraintLayout {
 
     private fun registerTitleClickListener() {
         txtTitle.setOnClickListener {
-            editTxtSearh.setText("")
             switchSearchMode(true)
+            with(editTxtSearh) {
+                setText("")
+                requestFocus()
+            }
         }
     }
 

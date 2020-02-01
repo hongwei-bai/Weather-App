@@ -1,9 +1,11 @@
 package au.com.test.weather_app.data.domain.entities
 
-import android.content.Context
-import au.com.test.weather_app.R
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 
+@Entity
 data class WeatherData(
+    @PrimaryKey(autoGenerate = true) var id: Int,
     val cityId: Long?,
     val cityName: String?,
     val latitude: Double,
@@ -19,6 +21,4 @@ data class WeatherData(
     val windSpeed: Float,
     val windDegree: Int,
     var lastUpdate: Long
-) {
-    fun getTitle(context: Context): String = cityName ?: context.resources.getString(R.string.unknown_location, latitude, longitude)
-}
+)

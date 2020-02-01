@@ -10,14 +10,32 @@
     android:paddingEnd="@dimen/spacing_l"
     android:paddingBottom="@dimen/spacing_s">
 
+    <ImageView
+        android:id="@+id/imgGpsIcon"
+        android:layout_width="@dimen/spacing_m"
+        android:layout_height="@dimen/spacing_m"
+        android:src="@drawable/ic_gps_fixed_press_24dp"
+        app:layout_constraintStart_toEndOf="@id/txtTitle"
+        app:layout_constraintStart_toStartOf="parent" />
+
     <TextView
         android:id="@+id/txtTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/spacing_s"
         android:textAppearance="@style/WeatherAppTheme.Current.Subtitle"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@id/imgGpsIcon"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Sydney, AU" />
+
+    <TextView
+        android:id="@+id/txtGpsLocation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/WeatherAppTheme.Current.Subtitle2"
+        app:layout_constraintBaseline_toBaselineOf="@id/txtTitle"
+        app:layout_constraintStart_toEndOf="@id/txtTitle"
+        tools:text="-33.000000, 151.000000" />
 
     <ImageView
         android:id="@+id/imgIcon"
@@ -33,19 +51,18 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/spacing_l"
         android:textAppearance="@style/WeatherAppTheme.Current.Subtitle"
+        app:layout_constraintBottom_toTopOf="@id/txtTemperature"
         app:layout_constraintStart_toEndOf="@id/imgIcon"
-        app:layout_constraintTop_toTopOf="@id/imgIcon"
-        app:layout_constraintVertical_chainStyle="spread_inside"
         tools:text="Rain" />
 
     <TextView
         android:id="@+id/txtTemperature"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/spacing_s"
         android:textAppearance="@style/WeatherAppTheme.Current.Title"
+        app:layout_constraintBottom_toBottomOf="@id/imgIcon"
         app:layout_constraintStart_toStartOf="@id/txtMain"
-        app:layout_constraintTop_toBottomOf="@id/txtMain"
-        app:layout_constraintVertical_chainStyle="spread_inside"
         tools:text="37C/100F" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
