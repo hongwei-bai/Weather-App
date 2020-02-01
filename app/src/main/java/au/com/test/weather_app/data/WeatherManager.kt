@@ -1,5 +1,7 @@
 package au.com.test.weather_app.data
 
+import au.com.test.weather_app.data.domain.entities.WeatherData
+import au.com.test.weather_app.data.domain.mappers.WeatherMapper
 import au.com.test.weather_app.data.source.cache.Cache
 import au.com.test.weather_app.data.source.local.owm.LocalOpenWeatherMapDataSource
 import au.com.test.weather_app.data.source.local.owm.models.City
@@ -20,8 +22,10 @@ class WeatherManager @Inject constructor(
     override fun getCityList(): Observable<List<City>> =
         localOpenWeatherMapDataSource.getCityList()
 
-    override fun queryWeatherData(cityName: String, countryCode: String?): Observable<WeatherRepsonse> =
-        openWeatherMapDataSource.getWeatherByCityName(cityName, countryCode)
+    override fun queryWeatherData(cityName: String, countryCode: String?): Observable<WeatherData> =
+        openWeatherMapDataSource.getWeatherByCityName(cityName, countryCode).map {
+            WeatherMapper.mapToDomainEntities(it)
+        }
 
     override fun queryWeatherById(cityId: Long): Observable<WeatherRepsonse> =
         openWeatherMapDataSource.getWeatherById(cityId)
@@ -29,6 +33,9 @@ class WeatherManager @Inject constructor(
     override fun queryWeatherByCoordinate(lat: Double, lon: Double): Observable<WeatherRepsonse> =
         openWeatherMapDataSource.getWeatherByCoordinate(lat, lon)
 
-    override fun queryWeatherByZipCode(zipCode: Long, countryCode: String?): Observable<WeatherRepsonse> =
+    override fun queryWeatherByZipCode(
+        zipCode: Long,
+        countryCode: String?
+    ): Observable<WeatherRepsonse> =
         openWeatherMapDataSource.getWeatherByZipCode(zipCode, countryCode)
 }

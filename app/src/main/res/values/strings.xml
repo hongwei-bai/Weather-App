@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Weather-App</string>
+
+    <string name="gps_content_description">Search weather by current GPS location</string>
+
+    <string name="search_hint">type city name or zip code to search&#8230;</string>
 </resources>

@@ -1,5 +1,7 @@
 package au.com.test.weather_app.data.source.remote.owm.models
 
+import au.com.test.weather_app.data.source.remote.owm.models.WeatherResponseCode.SUCCESS
+
 data class WeatherRepsonse(
     val coord: Coordinate,
     val weather: List<Weather>,
@@ -14,7 +16,10 @@ data class WeatherRepsonse(
     val id: Long,
     val name: String,
     val cod: Int
-)
+) {
+    fun isSuccess(): Boolean =
+        cod == SUCCESS && weather.isNotEmpty()
+}
 
 data class Coordinate(
     val lon: Double,
@@ -34,7 +39,7 @@ data class Main(
     val temp_min: Float,
     val temp_max: Float,
     val pressure: Long,
-    val humifity: Int
+    val humidity: Int
 )
 
 data class Wind(

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorTransparent"
+    android:orientation="horizontal"
+    android:paddingStart="@dimen/spacing_m"
+    android:paddingEnd="@dimen/spacing_m">
+
+    <ImageButton
+        android:id="@+id/imgBtnGps"
+        android:layout_width="@dimen/spacing_xl"
+        android:layout_height="@dimen/spacing_xl"
+        android:layout_gravity="center_vertical"
+        android:background="@color/colorTransparent"
+        android:contentDescription="@string/gps_content_description"
+        android:src="@drawable/selector_gps" />
+
+    <EditText
+        android:id="@+id/editTxtSearh"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="@dimen/spacing_m"
+        android:layout_marginEnd="@dimen/spacing_m"
+        android:layout_weight="4"
+        android:autofillHints="@string/search_hint"
+        android:singleLine="true" />
+
+    <ImageButton
+        android:id="@+id/imgBtnSearch"
+        android:layout_width="@dimen/spacing_xl"
+        android:layout_height="@dimen/spacing_xl"
+        android:layout_gravity="center_vertical"
+        android:background="@color/colorTransparent"
+        android:src="@drawable/selector_arrow_forward" />
+
+</LinearLayout>

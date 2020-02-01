@@ -2,13 +2,13 @@ package au.com.test.weather_app.home
 
 import android.content.Context
 import au.com.test.weather_app.data.WeatherRepository
-import au.com.test.weather_app.util.FileUtil
 import au.com.test.weather_app.util.Logger
 import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
 
 class MainActivityPresenter @Inject constructor(
     private val context: Context,
+    private val view: MainActivityView,
     private val weatherRepository: WeatherRepository,
     private val logger: Logger
 ) {
@@ -17,6 +17,17 @@ class MainActivityPresenter @Inject constructor(
     }
 
     private val disposables = CompositeDisposable()
+
+    fun search(input: String) {
+        disposables.add(
+            weatherRepository.queryWeatherData(input).subscribe({
+                logger.d(TAG, "weather: $it")
+                view.onCurrentWeatherUpdate(it)
+            }, {
+                logger.w(TAG, "subscribe fetchWeatherData onError: ${it.localizedMessage}")
+            })
+        )
+    }
 
     fun test() {
         logger.d(TAG, "hello world")
