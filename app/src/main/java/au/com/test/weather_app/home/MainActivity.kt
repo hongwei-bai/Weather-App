@@ -12,9 +12,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import au.com.test.weather_app.LocalProperties
 import au.com.test.weather_app.R
 import au.com.test.weather_app.data.domain.entities.WeatherData
-import au.com.test.weather_app.di.common.BaseActivity
+import au.com.test.weather_app.di.base.BaseActivity
+import au.com.test.weather_app.di.components.DaggerActivityComponent
+import au.com.test.weather_app.di.modules.ActivityModule
 import au.com.test.weather_app.home.adapter.RecentRecordListAdapter
-import au.com.test.weather_app.home.presenter.MainActivityPresenter
 import au.com.test.weather_app.util.GlideApp
 import au.com.test.weather_app.util.TemperatureUtil
 import kotlinx.android.synthetic.main.activity_home.*
@@ -28,38 +29,35 @@ import javax.inject.Inject
 import kotlin.math.roundToInt
 
 
-class MainActivity : BaseActivity(), MainActivityView {
+class MainActivity : BaseActivity() {
 
     companion object {
         private const val REQUEST_CODE_LOCATION = 444
     }
 
     @Inject
-    lateinit var presenter: MainActivityPresenter
+    lateinit var viewModel: MainActivityViewModel
 
     lateinit var recentRecordListAdapter: RecentRecordListAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
+
+        viewModel = getViewModelProvider(this).get(MainActivityViewModel::class.java)
     }
 
     override fun onResume() {
         super.onResume()
 
         with(layoutSearchbar) {
-            setOnSearchButtonClick { presenter.fetch(it) }
+            setOnSearchButtonClick { viewModel.fetch(it) }
             setOnGpsButtonClick { getWeatherForCurrentLocation() }
         }
         initializeRecentRecordList()
     }
 
-    override fun onPause() {
-        presenter.clear()
-        super.onPause()
-    }
-
-    override fun onCurrentWeatherUpdate(data: WeatherData) {
+    private fun onCurrentWeatherUpdate(data: WeatherData) {
         val title = data.getTitle(this)
         GlobalScope.launch(Dispatchers.Main) {
             updateCurrentWeather(data)
@@ -69,14 +67,12 @@ class MainActivity : BaseActivity(), MainActivityView {
         }
     }
 
-    override fun onRecentRecordListUpdate(list: List<WeatherData>) {
+    private fun onRecentRecordListUpdate(list: List<WeatherData>) {
         recentRecordListAdapter.apply {
             data = list
             notifyDataSetChanged()
         }
     }
-
-    override fun getContainerId(): Int = R.id.layoutContainer
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -86,6 +82,14 @@ class MainActivity : BaseActivity(), MainActivityView {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
         getWeatherForCurrentLocation()
+    }
+
+    override fun inject() {
+        DaggerActivityComponent.builder()
+            .applicationComponent(getAppComponent())
+            .activityModule(ActivityModule(this))
+            .build()
+            .inject(this)
     }
 
     private fun initializeRecentRecordList() {
@@ -120,7 +124,7 @@ class MainActivity : BaseActivity(), MainActivityView {
         if (hasLocationPermission()) {
             try {
                 (getSystemService(Context.LOCATION_SERVICE) as LocationManager)
-                    .subscribeCurrentLocation { presenter.fetch(it.latitude, it.longitude) }
+                    .subscribeCurrentLocation { viewModel.fetch(it.latitude, it.longitude) }
             } catch (e: SecurityException) {
                 e.printStackTrace()
             }

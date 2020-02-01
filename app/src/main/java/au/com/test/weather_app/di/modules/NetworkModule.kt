@@ -1,4 +1,4 @@
-package au.com.test.weather_app.di.module
+package au.com.test.weather_app.di.modules
 
 import au.com.test.weather_app.LocalProperties
 import au.com.test.weather_app.data.source.remote.owm.interceptors.OpenWeatherMapInterceptor
@@ -40,6 +40,7 @@ class NetworkModule {
 
         return loggingInterceptor
     }
+
 
     @Provides
     @Singleton

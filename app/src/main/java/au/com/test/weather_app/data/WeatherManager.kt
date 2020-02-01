@@ -6,7 +6,6 @@ import au.com.test.weather_app.data.source.cache.Cache
 import au.com.test.weather_app.data.source.local.owm.LocalOpenWeatherMapDataSource
 import au.com.test.weather_app.data.source.local.owm.models.City
 import au.com.test.weather_app.data.source.remote.owm.OpenWeatherMapDataSource
-import au.com.test.weather_app.data.source.remote.owm.models.WeatherRepsonse
 import io.reactivex.Observable
 import javax.inject.Inject
 import javax.inject.Singleton

@@ -5,7 +5,9 @@ import au.com.test.weather_app.data.source.remote.owm.services.WeatherService
 import au.com.test.weather_app.data.source.remote.owm.helper.RequestHelper.buildQueryCompositeParameter
 import io.reactivex.Observable
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 open class OpenWeatherMapDataSource @Inject constructor(
     private val weatherService: WeatherService
 ) {

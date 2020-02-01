@@ -1,4 +1,4 @@
-package au.com.test.weather_app.di.module
+package au.com.test.weather_app.di.modules
 
 import au.com.test.weather_app.data.WeatherManager
 import au.com.test.weather_app.data.WeatherRepository
@@ -7,8 +7,8 @@ import dagger.Module
 import javax.inject.Singleton
 
 @Module
-interface DataModule {
+interface SingletonModule {
     @Binds
     @Singleton
-    fun bindWeatherRepository(weatherRepository: WeatherManager): WeatherRepository
+    fun bindWeatherRepository(weatherManager: WeatherManager): WeatherRepository
 }

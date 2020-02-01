@@ -8,7 +8,7 @@ import android.location.LocationManager
 import android.os.Bundle
 import android.view.inputmethod.InputMethodManager
 import au.com.test.weather_app.LocalProperties
-import au.com.test.weather_app.di.common.BaseActivity
+import au.com.test.weather_app.di.base.BaseActivity
 
 
 @SuppressLint("MissingPermission")

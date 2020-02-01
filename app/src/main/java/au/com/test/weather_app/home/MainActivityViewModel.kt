@@ -1,28 +1,26 @@
-package au.com.test.weather_app.home.presenter
+package au.com.test.weather_app.home
 
 import android.content.Context
 import au.com.test.weather_app.data.WeatherRepository
 import au.com.test.weather_app.data.domain.entities.WeatherData
-import au.com.test.weather_app.home.MainActivityView
+import au.com.test.weather_app.di.annotations.AppContext
+import au.com.test.weather_app.di.base.BaseViewModel
+import au.com.test.weather_app.home.presenter.RecentSearchManager
 import au.com.test.weather_app.util.Logger
-import io.reactivex.disposables.CompositeDisposable
 import java.util.regex.Pattern
 import javax.inject.Inject
 
-class MainActivityPresenter @Inject constructor(
-    private val context: Context,
-    private val view: MainActivityView,
+class MainActivityViewModel @Inject constructor(
+    @AppContext private val context: Context,
     private val weatherRepository: WeatherRepository,
     private val recentSearchManager: RecentSearchManager,
     private val logger: Logger
-) {
+) : BaseViewModel() {
     companion object {
-        private val TAG = MainActivityPresenter::class.java.simpleName
+        private val TAG = MainActivityViewModel::class.java.simpleName
 
         private const val REGEX_COUNTRY_CODE = "[ ,]{1}\\w{2}"
     }
-
-    private val disposables = CompositeDisposable()
 
     fun go() {
 
@@ -61,10 +59,10 @@ class MainActivityPresenter @Inject constructor(
     }
 
     private fun notifyViewUpdate(data: WeatherData) {
-        view.onCurrentWeatherUpdate(data)
-        view.onRecentRecordListUpdate(recentSearchManager.apply {
-            addRecord(data)
-        }.getList())
+//        view.onCurrentWeatherUpdate(data)
+//        view.onRecentRecordListUpdate(recentSearchManager.apply {
+//            addRecord(data)
+//        }.getList())
     }
 
     private fun getCountryCode(input: String): String? =
@@ -73,8 +71,4 @@ class MainActivityPresenter @Inject constructor(
                 group(0)
             } else null
         }
-
-    fun clear() {
-        disposables.clear()
-    }
 }
