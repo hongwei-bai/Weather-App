@@ -6,4 +6,5 @@
 
     <color name="colorLightBlue">#90444488</color>
     <color name="colorTransparent">#00000000</color>
+    <color name="colorLightGrey">#DDDDDD</color>
 </resources>

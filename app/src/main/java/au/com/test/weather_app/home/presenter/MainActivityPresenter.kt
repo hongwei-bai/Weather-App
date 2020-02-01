@@ -1,7 +1,9 @@
-package au.com.test.weather_app.home
+package au.com.test.weather_app.home.presenter
 
 import android.content.Context
 import au.com.test.weather_app.data.WeatherRepository
+import au.com.test.weather_app.data.domain.entities.WeatherData
+import au.com.test.weather_app.home.MainActivityView
 import au.com.test.weather_app.util.Logger
 import io.reactivex.disposables.CompositeDisposable
 import java.util.regex.Pattern
@@ -11,6 +13,7 @@ class MainActivityPresenter @Inject constructor(
     private val context: Context,
     private val view: MainActivityView,
     private val weatherRepository: WeatherRepository,
+    private val recentSearchManager: RecentSearchManager,
     private val logger: Logger
 ) {
     companion object {
@@ -20,6 +23,10 @@ class MainActivityPresenter @Inject constructor(
     }
 
     private val disposables = CompositeDisposable()
+
+    fun go() {
+
+    }
 
     fun fetch(input: String) {
         val countryCode: String? = getCountryCode(input)
@@ -34,7 +41,7 @@ class MainActivityPresenter @Inject constructor(
                     ?: queryWeatherByCityName(keyWord, countryCode))
                     .subscribe({
                         logger.d(TAG, "queryWeather by $keyWord, $countryCode: $it")
-                        view.onCurrentWeatherUpdate(it)
+                        notifyViewUpdate(it)
                     }, {
                         logger.w(TAG, "queryWeather onError: ${it.localizedMessage}")
                     })
@@ -46,11 +53,18 @@ class MainActivityPresenter @Inject constructor(
         disposables.add(
             weatherRepository.queryWeatherByCoordinate(lat, lon).subscribe({
                 logger.d(TAG, "queryWeatherByCoordinate ($lat, $lon) -> weather: $it")
-                view.onCurrentWeatherUpdate(it)
+                notifyViewUpdate(it)
             }, {
                 logger.w(TAG, "queryWeatherByCoordinate onError: ${it.localizedMessage}")
             })
         )
+    }
+
+    private fun notifyViewUpdate(data: WeatherData) {
+        view.onCurrentWeatherUpdate(data)
+        view.onRecentRecordListUpdate(recentSearchManager.apply {
+            addRecord(data)
+        }.getList())
     }
 
     private fun getCountryCode(input: String): String? =

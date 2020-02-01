@@ -4,13 +4,14 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.KeyEvent
 import android.view.LayoutInflater
+import android.view.View
 import android.view.inputmethod.EditorInfo
-import android.widget.LinearLayout
+import androidx.constraintlayout.widget.ConstraintLayout
 import au.com.test.weather_app.R
 import kotlinx.android.synthetic.main.layout_searchbar.view.*
 
 
-class LocationSearchToolBar : LinearLayout {
+class LocationSearchToolBar : ConstraintLayout {
 
     constructor(context: Context) : super(context)
 
@@ -30,6 +31,7 @@ class LocationSearchToolBar : LinearLayout {
         set(value) {
             field = value
             updateTitle()
+            switchSearchMode(false)
         }
 
     private var onGpsButtonClickListener: (() -> Unit)? = null
@@ -51,6 +53,21 @@ class LocationSearchToolBar : LinearLayout {
         updateTitle()
         registerGpsButtonClickListener()
         registerSearchButtonClickListener()
+        registerTitleClickListener()
+    }
+
+    private fun switchSearchMode(searchOn: Boolean) {
+        if (searchOn) {
+            imgBtnGps.visibility = View.VISIBLE
+            imgBtnSearch.visibility = View.VISIBLE
+            editTxtSearh.visibility = View.VISIBLE
+            txtTitle.visibility = View.INVISIBLE
+        } else {
+            imgBtnGps.visibility = View.INVISIBLE
+            imgBtnSearch.visibility = View.INVISIBLE
+            editTxtSearh.visibility = View.INVISIBLE
+            txtTitle.visibility = View.VISIBLE
+        }
     }
 
     private fun registerGpsButtonClickListener() {
@@ -63,15 +80,25 @@ class LocationSearchToolBar : LinearLayout {
         imgBtnSearch.setOnClickListener {
             onSearchButtonClickListener?.invoke(editTxtSearh.text.toString())
         }
+        listenToExternalKeyboardEnterKey()
+    }
+
+    private fun listenToExternalKeyboardEnterKey() =
         editTxtSearh.setOnEditorActionListener { _, actionId, event ->
             if (event != null && event.keyCode == KeyEvent.KEYCODE_ENTER || actionId == EditorInfo.IME_ACTION_DONE) { //do what you want on the press of 'done'
                 onSearchButtonClickListener?.invoke(editTxtSearh.text.toString())
             }
             false
         }
+
+    private fun registerTitleClickListener() {
+        txtTitle.setOnClickListener {
+            editTxtSearh.setText("")
+            switchSearchMode(true)
+        }
     }
 
     private fun updateTitle() {
-        editTxtSearh?.setText(title)
+        txtTitle.text = title
     }
 }

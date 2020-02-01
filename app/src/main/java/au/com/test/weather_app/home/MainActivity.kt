@@ -1,29 +1,34 @@
 package au.com.test.weather_app.home
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.content.Context
-import android.location.Location
-import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
 import android.util.Log
-import android.view.KeyEvent
+import android.view.View
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.DividerItemDecoration.VERTICAL
+import androidx.recyclerview.widget.LinearLayoutManager
 import au.com.test.weather_app.LocalProperties
 import au.com.test.weather_app.R
 import au.com.test.weather_app.data.domain.entities.WeatherData
 import au.com.test.weather_app.di.common.BaseActivity
+import au.com.test.weather_app.home.adapter.RecentRecordListAdapter
+import au.com.test.weather_app.home.presenter.MainActivityPresenter
 import au.com.test.weather_app.util.GlideApp
+import au.com.test.weather_app.util.TemperatureUtil
 import kotlinx.android.synthetic.main.activity_home.*
+import kotlinx.android.synthetic.main.layout_searchbar.*
 import kotlinx.android.synthetic.main.layout_weather_big.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import pub.devrel.easypermissions.EasyPermissions
 import javax.inject.Inject
+import kotlin.math.roundToInt
 
 
-class MainActivity : BaseActivity(), MainActivityView, LocationListener {
+class MainActivity : BaseActivity(), MainActivityView {
 
     companion object {
         private const val REQUEST_CODE_LOCATION = 444
@@ -32,19 +37,21 @@ class MainActivity : BaseActivity(), MainActivityView, LocationListener {
     @Inject
     lateinit var presenter: MainActivityPresenter
 
-    private lateinit var locationManager: LocationManager
+    lateinit var recentRecordListAdapter: RecentRecordListAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
-        with(layoutSearchbar) {
-            setOnSearchButtonClick { presenter.fetch(it) }
-            setOnGpsButtonClick { getWeatherForCurrentLocation() }
-        }
     }
 
     override fun onResume() {
         super.onResume()
+
+        with(layoutSearchbar) {
+            setOnSearchButtonClick { presenter.fetch(it) }
+            setOnGpsButtonClick { getWeatherForCurrentLocation() }
+        }
+        initializeRecentRecordList()
     }
 
     override fun onPause() {
@@ -53,34 +60,23 @@ class MainActivity : BaseActivity(), MainActivityView, LocationListener {
     }
 
     override fun onCurrentWeatherUpdate(data: WeatherData) {
+        val title = data.getTitle(this)
         GlobalScope.launch(Dispatchers.Main) {
-            val iconUrl = String.format(
-                LocalProperties.Network.API_WEATHER_ICON_URL, data.icon
-            )
-            GlideApp.with(imgIcon).load(iconUrl).into(imgIcon)
+            updateCurrentWeather(data)
+            layoutSearchbar.title = title
+            txtTitle.clearFocus()
+            hideKeyboard()
+        }
+    }
 
-            txtMain.text = data.main
-            txtDescription.text = data.description
-            txtTemperature.text = data.temperature.toString()
-            txtHumidity.text = data.humidity.toString()
-            txtWind.text = data.windSpeed.toString() + "/" + data.windDegree
+    override fun onRecentRecordListUpdate(list: List<WeatherData>) {
+        recentRecordListAdapter.apply {
+            data = list
+            notifyDataSetChanged()
         }
     }
 
     override fun getContainerId(): Int = R.id.layoutContainer
-
-    override fun onLocationChanged(p0: Location?) {
-        Log.i("wa aaaa", "onLocationChanged $p0")
-    }
-
-    override fun onStatusChanged(p0: String?, p1: Int, p2: Bundle?) {
-    }
-
-    override fun onProviderEnabled(p0: String?) {
-    }
-
-    override fun onProviderDisabled(p0: String?) {
-    }
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -92,6 +88,31 @@ class MainActivity : BaseActivity(), MainActivityView, LocationListener {
         getWeatherForCurrentLocation()
     }
 
+    private fun initializeRecentRecordList() {
+        recentRecordListAdapter = RecentRecordListAdapter(this)
+        recyclerRecent.layoutManager = LinearLayoutManager(this)
+        recyclerRecent.adapter = recentRecordListAdapter
+        recyclerRecent.addItemDecoration(DividerItemDecoration(this, VERTICAL))
+
+        recentRecordListAdapter.setOnItemClickListener { position, weatherData ->
+            Log.i("aaaa", "click: ${weatherData.cityName}")
+        }
+    }
+
+    private fun updateCurrentWeather(data: WeatherData) {
+        val iconUrl = String.format(
+            LocalProperties.Network.API_WEATHER_ICON_URL, data.weatherIcon
+        )
+        GlideApp.with(imgIcon).load(iconUrl).into(imgIcon)
+
+        txtMain.text = data.weather
+        txtDescription.text = data.weatherDescription
+        txtTemperature.text = getString(R.string.celsius, TemperatureUtil.kalvinToCelsius(data.temperature).roundToInt())
+        txtHumidity.text = getString(R.string.humidity, data.humidity)
+        txtWind.text = getString(R.string.wind_speed, data.windSpeed.toString())
+        divider.visibility = View.VISIBLE
+    }
+
     private fun hasLocationPermission(): Boolean =
         EasyPermissions.hasPermissions(this, Manifest.permission.ACCESS_FINE_LOCATION)
 
@@ -99,9 +120,7 @@ class MainActivity : BaseActivity(), MainActivityView, LocationListener {
         if (hasLocationPermission()) {
             try {
                 (getSystemService(Context.LOCATION_SERVICE) as LocationManager)
-                    .subscribeCurrentLocation {
-                        presenter.fetch(it.latitude, it.longitude)
-                    }
+                    .subscribeCurrentLocation { presenter.fetch(it.latitude, it.longitude) }
             } catch (e: SecurityException) {
                 e.printStackTrace()
             }
@@ -112,30 +131,4 @@ class MainActivity : BaseActivity(), MainActivityView, LocationListener {
             )
         }
     }
-
-
-}
-
-@SuppressLint("MissingPermission")
-private fun LocationManager.subscribeCurrentLocation(action: (location: Location) -> Unit) {
-    requestLocationUpdates(
-        LocationManager.GPS_PROVIDER,
-        LocalProperties.Config.LOCATION_REQUEST_MIN_TIME,
-        LocalProperties.Config.LOCATION_REQUEST_MIN_DISTANCE,
-        object : LocationListener {
-            override fun onLocationChanged(location: Location) {
-                action.invoke(location)
-            }
-
-            override fun onStatusChanged(provider: String?, status: Int, extra: Bundle?) {
-            }
-
-            override fun onProviderEnabled(provider: String?) {
-            }
-
-            override fun onProviderDisabled(provider: String?) {
-            }
-
-        }
-    )
 }

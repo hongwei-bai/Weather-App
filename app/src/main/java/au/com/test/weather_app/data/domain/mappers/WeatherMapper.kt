@@ -7,16 +7,21 @@ object WeatherMapper {
     fun mapToDomainEntities(response: WeatherRepsonse): WeatherData? =
         if (response.isSuccess()) {
             WeatherData(
-                id = response.weather[0].id,
-                main = response.weather[0].main,
-                description = response.weather[0].description,
-                icon = response.weather[0].icon,
+                cityId = if (response.id > 0) response.id else null,
+                cityName = if (response.name.isNotBlank()) response.name else null,
+                latitude = response.coord.lat,
+                longitude = response.coord.lon,
+                weatherConditionId = response.weather[0].id,
+                weather = response.weather[0].main,
+                weatherDescription = response.weather[0].description,
+                weatherIcon = response.weather[0].icon,
                 temperature = response.main.temp,
                 temperatureMin = response.main.temp_min,
                 temperatureMax = response.main.temp_max,
                 humidity = response.main.humidity,
                 windSpeed = response.wind.speed,
-                windDegree = response.wind.deg
+                windDegree = response.wind.deg,
+                lastUpdate = System.currentTimeMillis()
             )
         } else {
             null

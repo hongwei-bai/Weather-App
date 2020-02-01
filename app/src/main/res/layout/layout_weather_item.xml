@@ -2,44 +2,50 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/layoutContainer"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content"
+    android:background="?android:attr/selectableItemBackground"
+    android:paddingStart="@dimen/spacing_l"
+    android:paddingTop="@dimen/spacing_s"
+    android:paddingEnd="@dimen/spacing_l"
+    android:paddingBottom="@dimen/spacing_s">
+
+    <TextView
+        android:id="@+id/txtTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/WeatherAppTheme.Current.Subtitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Sydney, AU" />
 
     <ImageView
         android:id="@+id/imgIcon"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:layout_marginStart="@dimen/spacing_s"
+        android:layout_width="54dp"
+        android:layout_height="54dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/txtTitle" />
 
     <TextView
         android:id="@+id/txtMain"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/spacing_m"
+        android:layout_marginStart="@dimen/spacing_l"
+        android:textAppearance="@style/WeatherAppTheme.Current.Subtitle"
         app:layout_constraintStart_toEndOf="@id/imgIcon"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toTopOf="@id/imgIcon"
+        app:layout_constraintVertical_chainStyle="spread_inside"
         tools:text="Rain" />
-
-    <TextView
-        android:id="@+id/txtDescription"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/spacing_m"
-        app:layout_constraintBottom_toBottomOf="@id/imgIcon"
-        app:layout_constraintStart_toStartOf="@id/txtMain"
-        app:layout_constraintTop_toBottomOf="@id/txtMain"
-        tools:text="Light rain" />
 
     <TextView
         android:id="@+id/txtTemperature"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="@id/imgIcon"
-        app:layout_constraintTop_toBottomOf="@id/imgIcon"
+        android:textAppearance="@style/WeatherAppTheme.Current.Title"
+        app:layout_constraintStart_toStartOf="@id/txtMain"
+        app:layout_constraintTop_toBottomOf="@id/txtMain"
+        app:layout_constraintVertical_chainStyle="spread_inside"
         tools:text="37C/100F" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

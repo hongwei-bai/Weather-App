@@ -7,4 +7,9 @@
 
     <string name="permission_request_location">Location permission is required to accquire current location.</string>
 
+    <string name="celsius">%d\u2103</string>
+    <string name="fahrenheit">%d\u2109</string>
+    <string name="humidity">Humidity %d%%</string>
+    <string name="wind_speed">Wind speed: %s m/s</string>
+    <string name="unknown_location">Unknown location\n%f, %f</string>
 </resources>

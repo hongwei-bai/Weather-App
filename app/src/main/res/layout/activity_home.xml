@@ -22,8 +22,16 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerRecent"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/layoutCurrentLocationWeather" />
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:background="@drawable/bg_shadow"
+        android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/layoutCurrentLocationWeather" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
