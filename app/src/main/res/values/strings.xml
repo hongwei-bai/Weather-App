@@ -4,4 +4,7 @@
     <string name="gps_content_description">Search weather by current GPS location</string>
 
     <string name="search_hint">type city name or zip code to search&#8230;</string>
+
+    <string name="permission_request_location">Location permission is required to accquire current location.</string>
+
 </resources>

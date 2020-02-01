@@ -22,20 +22,29 @@ class WeatherManager @Inject constructor(
     override fun getCityList(): Observable<List<City>> =
         localOpenWeatherMapDataSource.getCityList()
 
-    override fun queryWeatherData(cityName: String, countryCode: String?): Observable<WeatherData> =
+    override fun queryWeatherByCityName(
+        cityName: String,
+        countryCode: String?
+    ): Observable<WeatherData> =
         openWeatherMapDataSource.getWeatherByCityName(cityName, countryCode).map {
             WeatherMapper.mapToDomainEntities(it)
         }
 
-    override fun queryWeatherById(cityId: Long): Observable<WeatherRepsonse> =
-        openWeatherMapDataSource.getWeatherById(cityId)
+    override fun queryWeatherById(cityId: Long): Observable<WeatherData> =
+        openWeatherMapDataSource.getWeatherById(cityId).map {
+            WeatherMapper.mapToDomainEntities(it)
+        }
 
-    override fun queryWeatherByCoordinate(lat: Double, lon: Double): Observable<WeatherRepsonse> =
-        openWeatherMapDataSource.getWeatherByCoordinate(lat, lon)
+    override fun queryWeatherByCoordinate(lat: Double, lon: Double): Observable<WeatherData> =
+        openWeatherMapDataSource.getWeatherByCoordinate(lat, lon).map {
+            WeatherMapper.mapToDomainEntities(it)
+        }
 
     override fun queryWeatherByZipCode(
         zipCode: Long,
         countryCode: String?
-    ): Observable<WeatherRepsonse> =
-        openWeatherMapDataSource.getWeatherByZipCode(zipCode, countryCode)
+    ): Observable<WeatherData> =
+        openWeatherMapDataSource.getWeatherByZipCode(zipCode, countryCode).map {
+            WeatherMapper.mapToDomainEntities(it)
+        }
 }

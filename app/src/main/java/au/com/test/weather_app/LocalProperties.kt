@@ -25,4 +25,9 @@ object LocalProperties : CommonLocalProperties() {
     object Local {
         const val CITY_LIST = "city.list.json"
     }
+
+    object Config {
+        const val LOCATION_REQUEST_MIN_TIME = 2000L
+        const val LOCATION_REQUEST_MIN_DISTANCE = 5f
+    }
 }

@@ -4,6 +4,7 @@ import android.content.Context
 import au.com.test.weather_app.data.WeatherRepository
 import au.com.test.weather_app.util.Logger
 import io.reactivex.disposables.CompositeDisposable
+import java.util.regex.Pattern
 import javax.inject.Inject
 
 class MainActivityPresenter @Inject constructor(
@@ -14,56 +15,50 @@ class MainActivityPresenter @Inject constructor(
 ) {
     companion object {
         private val TAG = MainActivityPresenter::class.java.simpleName
+
+        private const val REGEX_COUNTRY_CODE = "[ ,]{1}\\w{2}"
     }
 
     private val disposables = CompositeDisposable()
 
-    fun search(input: String) {
+    fun fetch(input: String) {
+        val countryCode: String? = getCountryCode(input)
+
+        val keyWord = countryCode?.let {
+            input.replace(it, "")
+        } ?: input
+
         disposables.add(
-            weatherRepository.queryWeatherData(input).subscribe({
-                logger.d(TAG, "weather: $it")
+            with(weatherRepository) {
+                (keyWord.toLongOrNull()?.let { queryWeatherByZipCode(it, countryCode) }
+                    ?: queryWeatherByCityName(keyWord, countryCode))
+                    .subscribe({
+                        logger.d(TAG, "queryWeather by $keyWord, $countryCode: $it")
+                        view.onCurrentWeatherUpdate(it)
+                    }, {
+                        logger.w(TAG, "queryWeather onError: ${it.localizedMessage}")
+                    })
+            }
+        )
+    }
+
+    fun fetch(lat: Double, lon: Double) {
+        disposables.add(
+            weatherRepository.queryWeatherByCoordinate(lat, lon).subscribe({
+                logger.d(TAG, "queryWeatherByCoordinate ($lat, $lon) -> weather: $it")
                 view.onCurrentWeatherUpdate(it)
             }, {
-                logger.w(TAG, "subscribe fetchWeatherData onError: ${it.localizedMessage}")
+                logger.w(TAG, "queryWeatherByCoordinate onError: ${it.localizedMessage}")
             })
         )
     }
 
-    fun test() {
-        logger.d(TAG, "hello world")
-
-//        disposables.add(
-//            weatherRepository.queryWeatherData("London", "GB").subscribe({
-//                logger.d(TAG, "weather: $it")
-//            }, {
-//                logger.w(TAG, "subscribe fetchWeatherData onError: ${it.localizedMessage}")
-//            })
-//        )
-
-//        disposables.add(
-//            weatherRepository.queryWeatherById(1502).subscribe({
-//                logger.d(TAG, "queryWeatherById 1502 -> weather: $it")
-//            }, {
-//                logger.w(TAG, "subscribe fetchWeatherData onError: ${it.localizedMessage}")
-//            })
-//        )
-
-//        disposables.add(
-//            weatherRepository.queryWeatherById(2643743).subscribe({
-//                logger.d(TAG, "queryWeatherById 2643743 -> weather: $it")
-//            }, {
-//                logger.w(TAG, "subscribe fetchWeatherData onError: ${it.localizedMessage}")
-//            })
-//        )
-
-        disposables.add(
-            weatherRepository.getCityList().subscribe({
-                logger.d(TAG, "getCityList: ${it.size}")
-            }, {
-                logger.w(TAG, "getCityList onError: ${it.localizedMessage}")
-            })
-        )
-    }
+    private fun getCountryCode(input: String): String? =
+        with(Pattern.compile(REGEX_COUNTRY_CODE).matcher(input)) {
+            if (find()) {
+                group(0)
+            } else null
+        }
 
     fun clear() {
         disposables.clear()
