@@ -77,4 +77,31 @@
         app:layout_constraintStart_toStartOf="@id/txtMain"
         tools:text="37C/100F" />
 
+    <ImageView
+        android:id="@+id/imgDelete"
+        android:layout_width="@dimen/spacing_l"
+        android:layout_height="@dimen/spacing_l"
+        android:contentDescription="@string/history_item_delete_icon_content_description"
+        android:src="@drawable/ic_delete_forever_24dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.6" />
+
+    <ImageView
+        android:id="@+id/imgCheckBox"
+        android:layout_width="@dimen/spacing_l"
+        android:layout_height="@dimen/spacing_l"
+        android:clickable="false"
+        android:contentDescription="@string/history_item_select_icon_content_description"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:src="@drawable/selector_checkbox"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.6" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

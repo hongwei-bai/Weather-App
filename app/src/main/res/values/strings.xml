@@ -5,7 +5,8 @@
     <string name="weather_icon_content_description">Icon for weather condition.</string>
     <string name="weather_search_button_content_description">Click to search location weather.</string>
     <string name="recent_item_location_icon_content_description">This record was searched by GPS location.</string>
-
+    <string name="history_item_delete_icon_content_description">Delete current location record.</string>
+    <string name="history_item_select_icon_content_description">Toggle current location record for batch delete.</string>
 
     <string name="search_hint">type city name or zip code to search&#8230;</string>
     <string name="permission_request_location">Location permission is required to accquire current location.</string>

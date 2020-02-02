@@ -4,10 +4,11 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.KeyEvent
 import android.view.LayoutInflater
-import android.view.View
 import android.view.inputmethod.EditorInfo
 import androidx.constraintlayout.widget.ConstraintLayout
 import au.com.test.weather_app.R
+import au.com.test.weather_app.util.hide
+import au.com.test.weather_app.util.show
 import kotlinx.android.synthetic.main.layout_searchbar.view.*
 
 
@@ -58,15 +59,15 @@ class LocationSearchToolBar : ConstraintLayout {
 
     private fun switchSearchMode(searchOn: Boolean) {
         if (searchOn) {
-            imgBtnGps.visibility = View.VISIBLE
-            imgBtnSearch.visibility = View.VISIBLE
-            editTxtSearh.visibility = View.VISIBLE
-            txtTitle.visibility = View.INVISIBLE
+            imgBtnGps.show()
+            imgBtnSearch.show()
+            editTxtSearh.show()
+            txtTitle.hide()
         } else {
-            imgBtnGps.visibility = View.INVISIBLE
-            imgBtnSearch.visibility = View.INVISIBLE
-            editTxtSearh.visibility = View.INVISIBLE
-            txtTitle.visibility = View.VISIBLE
+            imgBtnGps.hide()
+            imgBtnSearch.hide()
+            editTxtSearh.hide()
+            txtTitle.show()
         }
     }
 

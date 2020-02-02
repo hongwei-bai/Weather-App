@@ -1,21 +1,16 @@
 package au.com.test.weather_app.di.modules
 
 import au.com.test.weather_app.LocalProperties
-import au.com.test.weather_app.data.source.remote.owm.interceptors.OpenWeatherMapInterceptor
 import au.com.test.weather_app.data.source.remote.owm.services.WeatherService
 import au.com.test.weather_app.util.Logger
-import au.com.test.weather_app.util.UtcDateAdapter
-import com.google.gson.GsonBuilder
+import com.google.gson.Gson
 import dagger.Module
 import dagger.Provides
-import io.reactivex.schedulers.Schedulers
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
-import java.util.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
@@ -41,15 +36,22 @@ class NetworkModule {
         return loggingInterceptor
     }
 
-
     @Provides
     @Singleton
-    fun provideApiInterceptor(): Interceptor = OpenWeatherMapInterceptor()
+    fun provideApiInterceptor(): Interceptor =
+        Interceptor { chain ->
+            val url = chain.request().url().newBuilder().addQueryParameter(LocalProperties.Network.KEY_API_KEY, LocalProperties.Network.API_KEY).build()
+            val request = chain.request()
+                .newBuilder()
+                .url(url)
+                .build()
+            chain.proceed(request)
+        }
 
     @Singleton
     @Provides
     fun provideOkHttp(
-        apiInterceptor: OpenWeatherMapInterceptor,
+        apiInterceptor: Interceptor,
         loggingInterceptor: HttpLoggingInterceptor
     ): OkHttpClient {
         val builder = OkHttpClient().newBuilder()
@@ -63,25 +65,30 @@ class NetworkModule {
         return builder.build()
     }
 
+    @Provides
+    @Singleton
+    fun provideGson(): Gson = Gson()
+
+    @Provides
+    @Singleton
+    fun provideGsonConverterFactory(gson: Gson): GsonConverterFactory =
+        GsonConverterFactory.create(gson)
+
     @Singleton
     @Provides
     fun provideRetrofit(
-        okHttpClient: OkHttpClient
-    ): Retrofit = buildRetrofit(okHttpClient)
+        okHttpClient: OkHttpClient,
+        converterFactory: GsonConverterFactory
+    ): Retrofit = buildRetrofit(okHttpClient, converterFactory)
 
     private fun buildRetrofit(
-        okHttpClient: OkHttpClient
+        okHttpClient: OkHttpClient,
+        converterFactory: GsonConverterFactory
     ): Retrofit {
-        val gson = GsonBuilder().registerTypeAdapter(
-            Date::class.java,
-            UtcDateAdapter()
-        ).create()
-
         return Retrofit.Builder()
             .client(okHttpClient)
             .baseUrl(LocalProperties.Network.API_BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create(gson))
-            .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
+            .addConverterFactory(converterFactory)
             .build()
     }
 

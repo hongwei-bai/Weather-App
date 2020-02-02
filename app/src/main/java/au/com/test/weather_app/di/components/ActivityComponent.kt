@@ -7,7 +7,7 @@ import au.com.test.weather_app.di.modules.ActivityModule
 import au.com.test.weather_app.di.modules.ViewModelModule
 import au.com.test.weather_app.di.annotations.ActivityContext
 import au.com.test.weather_app.home.MainActivity
-import au.com.test.weather_app.recent.RecentLocationActivity
+import au.com.test.weather_app.recent.LocationRecordActivity
 import dagger.Component
 
 @PerScreen
@@ -21,5 +21,5 @@ interface ActivityComponent : Singletons {
 
     fun inject(mainActivity: MainActivity)
 
-    fun inject(recentLocationActivity: RecentLocationActivity)
+    fun inject(locationRecordActivity: LocationRecordActivity)
 }

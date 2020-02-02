@@ -1,6 +1,6 @@
 package au.com.test.weather_app
 
-import java.util.*
+import java.util.Locale
 
 object LocalProperties : CommonLocalProperties() {
     const val IS_LOGGING_ENABLED = true
@@ -17,6 +17,7 @@ object LocalProperties : CommonLocalProperties() {
         const val API_WRITE_TIMEOUT = 10L
 
         const val API_BASE_URL = "https://api.openweathermap.org/"
+        const val KEY_API_KEY = "APPID"
         const val API_KEY = "9ba46ef8a53abd8397757ceb374ec4d3"
         const val API_WEATHER_ICON_URL = "https://openweathermap.org/img/wn/%s@2x.png"
         val API_PATHS = ApiPath

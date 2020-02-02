@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.Context
 import android.location.LocationManager
 import android.os.Bundle
-import android.view.View
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.DividerItemDecoration.VERTICAL
@@ -15,9 +14,10 @@ import au.com.test.weather_app.data.domain.entities.WeatherData
 import au.com.test.weather_app.di.base.BaseActivity
 import au.com.test.weather_app.di.components.DaggerActivityComponent
 import au.com.test.weather_app.di.modules.ActivityModule
-import au.com.test.weather_app.home.adapter.RecentRecordListAdapter
+import au.com.test.weather_app.share.adapter.RecentRecordListAdapter
 import au.com.test.weather_app.util.GlideApp
 import au.com.test.weather_app.util.TemperatureUtil
+import au.com.test.weather_app.util.show
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.layout_searchbar.*
 import kotlinx.android.synthetic.main.layout_weather_big.*
@@ -32,51 +32,29 @@ class MainActivity : BaseActivity() {
         private const val REQUEST_CODE_LOCATION = 444
     }
 
-    private val context: Context = this
-
     @Inject
-    lateinit var viewModel: MainActivityViewModel
+    lateinit var viewModel: MainViewModel
 
-    lateinit var recentRecordListAdapter: RecentRecordListAdapter
+    private lateinit var recentRecordListAdapter: RecentRecordListAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
 
-        viewModel = getViewModelProvider(this).get(MainActivityViewModel::class.java)
+        viewModel = getViewModelProvider(this).get(MainViewModel::class.java)
         observeViewModelState()
     }
 
     override fun onResume() {
         super.onResume()
 
-        with(layoutSearchbar) {
+        with(layoutToolbar) {
             setOnSearchButtonClick { viewModel.fetch(it) }
             setOnGpsButtonClick { getWeatherForCurrentLocation() }
         }
-        initializeRecentRecordList()
+        initializeRecyclerView()
 
         viewModel.go()
-    }
-
-    private fun observeViewModelState() {
-        viewModel.currentWeather.observe(this, Observer { currentWeather ->
-            updateCurrentWeather(currentWeather)
-            layoutSearchbar.title = currentWeather.cityName ?: getString(
-                R.string.unknown_location,
-                currentWeather.latitude,
-                currentWeather.longitude
-            )
-            txtTitle.clearFocus()
-            hideKeyboard()
-        })
-
-        viewModel.recentRecords.observe(this, Observer { recentRecords ->
-            recentRecordListAdapter.apply {
-                data = recentRecords
-                notifyDataSetChanged()
-            }
-        })
     }
 
     override fun onRequestPermissionsResult(
@@ -97,7 +75,27 @@ class MainActivity : BaseActivity() {
             .inject(this)
     }
 
-    private fun initializeRecentRecordList() {
+    private fun observeViewModelState() {
+        viewModel.currentWeather.observe(this, Observer { currentWeather ->
+            updateCurrentWeather(currentWeather)
+            layoutToolbar.title = currentWeather.cityName ?: getString(
+                R.string.unknown_location,
+                currentWeather.latitude,
+                currentWeather.longitude
+            )
+            txtTitle.clearFocus()
+            hideKeyboard()
+        })
+
+        viewModel.recentRecords.observe(this, Observer { recentRecords ->
+            recentRecordListAdapter.apply {
+                data = recentRecords
+                notifyDataSetChanged()
+            }
+        })
+    }
+
+    private fun initializeRecyclerView() {
         recentRecordListAdapter = RecentRecordListAdapter(this)
         recyclerRecent.layoutManager = LinearLayoutManager(this)
         recyclerRecent.adapter = recentRecordListAdapter
@@ -118,7 +116,7 @@ class MainActivity : BaseActivity() {
         )
         txtHumidity.text = getString(R.string.humidity, data.humidity)
         txtWind.text = getString(R.string.wind_speed, data.windSpeed.toString())
-        divider.visibility = View.VISIBLE
+        divider.show()
     }
 
     private fun hasLocationPermission(): Boolean =

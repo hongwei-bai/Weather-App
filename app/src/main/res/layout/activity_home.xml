@@ -6,7 +6,7 @@
     android:layout_height="match_parent">
 
     <au.com.test.weather_app.home.components.LocationSearchToolBar
-        android:id="@+id/layoutSearchbar"
+        android:id="@+id/layoutToolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/spacing_xs"
@@ -18,7 +18,7 @@
         layout="@layout/layout_weather_big"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/layoutSearchbar" />
+        app:layout_constraintTop_toBottomOf="@id/layoutToolbar" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerRecent"
