@@ -10,17 +10,21 @@ import androidx.recyclerview.widget.DividerItemDecoration.VERTICAL
 import androidx.recyclerview.widget.LinearLayoutManager
 import au.com.test.weather_app.LocalProperties
 import au.com.test.weather_app.R
+import au.com.test.weather_app.components.WeatherToolBar.ToolbarButton.LeftButton
+import au.com.test.weather_app.components.WeatherToolBar.ToolbarButton.LeftButtonOnSearchMode
+import au.com.test.weather_app.components.WeatherToolBar.ToolbarButton.RightButtonOnSearchMode
+import au.com.test.weather_app.components.adapter.LocationRecordListAdapter
 import au.com.test.weather_app.data.domain.entities.WeatherData
 import au.com.test.weather_app.di.base.BaseActivity
 import au.com.test.weather_app.di.components.DaggerActivityComponent
 import au.com.test.weather_app.di.modules.ActivityModule
-import au.com.test.weather_app.share.adapter.RecentRecordListAdapter
+import au.com.test.weather_app.locationrecord.LocationRecordActivity
 import au.com.test.weather_app.util.GlideApp
 import au.com.test.weather_app.util.TemperatureUtil
 import au.com.test.weather_app.util.show
 import kotlinx.android.synthetic.main.activity_home.*
-import kotlinx.android.synthetic.main.layout_searchbar.*
-import kotlinx.android.synthetic.main.layout_weather_big.*
+import kotlinx.android.synthetic.main.layout_toolbar.*
+import kotlinx.android.synthetic.main.layout_weather_main.*
 import pub.devrel.easypermissions.EasyPermissions
 import javax.inject.Inject
 import kotlin.math.roundToInt
@@ -35,7 +39,7 @@ class MainActivity : BaseActivity() {
     @Inject
     lateinit var viewModel: MainViewModel
 
-    private lateinit var recentRecordListAdapter: RecentRecordListAdapter
+    private lateinit var locationRecordListAdapter: LocationRecordListAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,16 +47,13 @@ class MainActivity : BaseActivity() {
 
         viewModel = getViewModelProvider(this).get(MainViewModel::class.java)
         observeViewModelState()
+
+        initializeRecyclerView()
+        initializeToolbar()
     }
 
     override fun onResume() {
         super.onResume()
-
-        with(layoutToolbar) {
-            setOnSearchButtonClick { viewModel.fetch(it) }
-            setOnGpsButtonClick { getWeatherForCurrentLocation() }
-        }
-        initializeRecyclerView()
 
         viewModel.go()
     }
@@ -67,6 +68,14 @@ class MainActivity : BaseActivity() {
         getWeatherForCurrentLocation()
     }
 
+    override fun onBackPressed() {
+        if (layoutToolbar.isOnSearchMode()) {
+            layoutToolbar.onLostFocus()
+        } else {
+            super.onBackPressed()
+        }
+    }
+
     override fun inject() {
         DaggerActivityComponent.builder()
             .applicationComponent(getAppComponent())
@@ -77,18 +86,20 @@ class MainActivity : BaseActivity() {
 
     private fun observeViewModelState() {
         viewModel.currentWeather.observe(this, Observer { currentWeather ->
-            updateCurrentWeather(currentWeather)
-            layoutToolbar.title = currentWeather.cityName ?: getString(
-                R.string.unknown_location,
-                currentWeather.latitude,
-                currentWeather.longitude
-            )
-            txtTitle.clearFocus()
-            hideKeyboard()
+            currentWeather?.let {
+                updateCurrentWeather(currentWeather)
+                layoutToolbar.title = currentWeather.cityName ?: getString(
+                    R.string.unknown_location,
+                    currentWeather.latitude,
+                    currentWeather.longitude
+                )
+                txtTitle.clearFocus()
+                hideKeyboard()
+            } ?: layoutToolbar.switchSearchMode(true)
         })
 
         viewModel.recentRecords.observe(this, Observer { recentRecords ->
-            recentRecordListAdapter.apply {
+            locationRecordListAdapter.apply {
                 data = recentRecords
                 notifyDataSetChanged()
             }
@@ -96,10 +107,29 @@ class MainActivity : BaseActivity() {
     }
 
     private fun initializeRecyclerView() {
-        recentRecordListAdapter = RecentRecordListAdapter(this)
-        recyclerRecent.layoutManager = LinearLayoutManager(this)
-        recyclerRecent.adapter = recentRecordListAdapter
-        recyclerRecent.addItemDecoration(DividerItemDecoration(this, VERTICAL))
+        locationRecordListAdapter = LocationRecordListAdapter(this)
+        recyclerLocationRecord.layoutManager = LinearLayoutManager(this)
+        recyclerLocationRecord.adapter = locationRecordListAdapter
+        recyclerLocationRecord.addItemDecoration(DividerItemDecoration(this, VERTICAL))
+    }
+
+    private fun initializeToolbar() {
+        with(layoutToolbar) {
+            isEnableSearch = true
+            leftIcon = R.drawable.selector_edit
+            leftIconOnSearchMode = R.drawable.selector_gps
+            rightIconOnSearchMode = R.drawable.selector_arrow_forward
+            setOnButtonClick { button, input, _ ->
+                when (button) {
+                    LeftButton -> startActivity(LocationRecordActivity.intent(context))
+                    LeftButtonOnSearchMode -> getWeatherForCurrentLocation()
+                    RightButtonOnSearchMode -> viewModel.fetch(input)
+                    else -> {
+                        // Do nothing
+                    }
+                }
+            }
+        }
     }
 
     private fun updateCurrentWeather(data: WeatherData) {

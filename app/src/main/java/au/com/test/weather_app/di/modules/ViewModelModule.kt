@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import au.com.test.weather_app.di.utils.ViewModelFactory
 import au.com.test.weather_app.di.utils.ViewModelKey
 import au.com.test.weather_app.home.MainViewModel
-import au.com.test.weather_app.recent.LocationRecordViewModel
+import au.com.test.weather_app.locationrecord.LocationRecordViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap

@@ -7,7 +7,7 @@ import au.com.test.weather_app.di.modules.ActivityModule
 import au.com.test.weather_app.di.modules.ViewModelModule
 import au.com.test.weather_app.di.annotations.ActivityContext
 import au.com.test.weather_app.home.MainActivity
-import au.com.test.weather_app.recent.LocationRecordActivity
+import au.com.test.weather_app.locationrecord.LocationRecordActivity
 import dagger.Component
 
 @PerScreen

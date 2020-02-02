@@ -27,7 +27,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".recent.LocationRecordActivity"
+            android:name=".locationrecord.LocationRecordActivity"
             android:label="@string/app_name"
             android:launchMode="standard">
 

@@ -1,9 +1,9 @@
 package au.com.test.weather_app
 
-import java.util.Locale
+import java.util.*
 
 object LocalProperties : CommonLocalProperties() {
-    const val IS_LOGGING_ENABLED = true
+    var IS_LOGGING_ENABLED = true
     val LOCALE = Locale
 
     object Locale {
