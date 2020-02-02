@@ -9,6 +9,7 @@
         android:id="@+id/imgIcon"
         android:layout_width="100dp"
         android:layout_height="100dp"
+        android:contentDescription="@string/weather_icon_content_description"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.3"

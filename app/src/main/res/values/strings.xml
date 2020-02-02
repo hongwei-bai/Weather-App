@@ -1,16 +1,22 @@
 <resources>
     <string name="app_name">Weather-App</string>
 
-    <string name="gps_content_description">Search weather by current GPS location</string>
+    <string name="gps_content_description">Search weather by current GPS location.</string>
+    <string name="weather_icon_content_description">Icon for weather condition.</string>
+    <string name="weather_search_button_content_description">Click to search location weather.</string>
+    <string name="recent_item_location_icon_content_description">This record was searched by GPS location.</string>
+
 
     <string name="search_hint">type city name or zip code to search&#8230;</string>
-
     <string name="permission_request_location">Location permission is required to accquire current location.</string>
-
     <string name="celsius">%d\u2103</string>
     <string name="fahrenheit">%d\u2109</string>
     <string name="humidity">Humidity %d%%</string>
     <string name="wind_speed">Wind speed: %s m/s</string>
     <string name="unknown_location">Unknown location\n%f, %f</string>
     <string name="gps_location">%f, %f</string>
+    <string name="just_now">Just now</string>
+    <string name="minutes_ago">%d minutes ago</string>
+    <string name="hours_ago">%d hours ago</string>
+    <string name="days_ago">%d days ago</string>
 </resources>

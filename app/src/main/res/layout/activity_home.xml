@@ -9,7 +9,8 @@
         android:id="@+id/layoutSearchbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/spacing_m"
+        android:layout_marginTop="@dimen/spacing_xs"
+        android:background="@color/colorTransparent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <include

@@ -3,8 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/colorTransparent">
+    android:layout_height="match_parent">
 
     <ImageButton
         android:id="@+id/imgBtnGps"
@@ -25,11 +24,19 @@
         android:layout_marginStart="@dimen/spacing_m"
         android:layout_marginEnd="@dimen/spacing_m"
         android:autofillHints="@string/search_hint"
+        android:background="@drawable/bg_round_rect"
+        android:inputType="text"
+        android:paddingStart="@dimen/spacing_s"
+        android:paddingTop="@dimen/spacing_xs"
+        android:paddingEnd="@dimen/spacing_s"
+        android:paddingBottom="@dimen/spacing_xs"
         android:singleLine="true"
+        android:textAppearance="@style/WeatherAppTheme.Current.Subtitle"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/imgBtnSearch"
         app:layout_constraintStart_toEndOf="@id/imgBtnGps"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="LabelFor,UnusedAttribute" />
 
     <TextView
         android:id="@+id/txtTitle"
@@ -52,6 +59,7 @@
         android:layout_height="@dimen/spacing_xl"
         android:layout_marginEnd="@dimen/spacing_m"
         android:background="@color/colorTransparent"
+        android:contentDescription="@string/weather_search_button_content_description"
         android:src="@drawable/selector_arrow_forward"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

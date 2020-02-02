@@ -14,9 +14,10 @@
         android:id="@+id/imgGpsIcon"
         android:layout_width="@dimen/spacing_m"
         android:layout_height="@dimen/spacing_m"
-        android:src="@drawable/ic_gps_fixed_press_24dp"
-        app:layout_constraintStart_toEndOf="@id/txtTitle"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:contentDescription="@string/recent_item_location_icon_content_description"
+        android:src="@drawable/ic_location_on_black_24dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/txtTitle" />
 
     <TextView
         android:id="@+id/txtTitle"
@@ -37,10 +38,21 @@
         app:layout_constraintStart_toEndOf="@id/txtTitle"
         tools:text="-33.000000, 151.000000" />
 
+    <TextView
+        android:id="@+id/txtLastUpdate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/spacing_s"
+        android:textAppearance="@style/WeatherAppTheme.Current.Subtitle3"
+        app:layout_constraintBaseline_toBaselineOf="@id/txtTitle"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:text="2 hours ago" />
+
     <ImageView
         android:id="@+id/imgIcon"
         android:layout_width="54dp"
         android:layout_height="54dp"
+        android:contentDescription="@string/weather_icon_content_description"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/txtTitle" />

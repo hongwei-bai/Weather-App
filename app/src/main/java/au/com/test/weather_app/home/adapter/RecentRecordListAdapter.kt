@@ -11,6 +11,7 @@ import au.com.test.weather_app.LocalProperties
 import au.com.test.weather_app.R
 import au.com.test.weather_app.data.domain.entities.WeatherData
 import au.com.test.weather_app.home.adapter.RecentRecordListAdapter.RecentRecordItemHolder
+import au.com.test.weather_app.util.DateUtil
 import au.com.test.weather_app.util.GlideApp
 import au.com.test.weather_app.util.TemperatureUtil
 import kotlinx.android.synthetic.main.layout_weather_item.view.*
@@ -69,6 +70,7 @@ class RecentRecordListAdapter(private val context: Context) :
                     R.string.celsius,
                     TemperatureUtil.kalvinToCelsius(data.temperature).roundToInt()
                 )
+                txtLastUpdate.text = DateUtil.getSmartTimeString(itemView.context, data.lastUpdate)
 
                 setOnItemClickListener(position, data, listener)
             }
