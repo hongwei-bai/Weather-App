@@ -6,6 +6,7 @@ import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import android.widget.ImageButton
 import androidx.annotation.DrawableRes
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -204,6 +205,7 @@ class WeatherToolBar : ConstraintLayout {
                 setText("")
                 requestFocus()
             }
+            (context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).showSoftInput(editTxtSearh, InputMethodManager.SHOW_IMPLICIT)
         }
     }
 
