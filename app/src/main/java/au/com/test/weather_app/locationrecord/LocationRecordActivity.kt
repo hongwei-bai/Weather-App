@@ -22,6 +22,7 @@ import au.com.test.weather_app.di.base.BaseActivity
 import au.com.test.weather_app.di.components.DaggerActivityComponent
 import au.com.test.weather_app.di.modules.ActivityModule
 import au.com.test.weather_app.home.MainViewModel
+import au.com.test.weather_app.util.show
 import kotlinx.android.synthetic.main.activity_location_record.*
 import kotlinx.android.synthetic.main.dialog_weather.*
 import javax.inject.Inject
@@ -79,6 +80,7 @@ class LocationRecordActivity : BaseActivity() {
     private fun observeViewModelState() {
         viewModel.recentRecords.observe(this, Observer { recentRecords ->
             locationRecordListAdapter.apply {
+                txtEmpty.show(recentRecords.isEmpty())
                 data = recentRecords
                 notifyDataSetChanged()
             }

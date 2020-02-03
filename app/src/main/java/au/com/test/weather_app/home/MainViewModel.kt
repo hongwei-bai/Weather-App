@@ -1,6 +1,5 @@
 package au.com.test.weather_app.home
 
-import android.util.Log
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -65,7 +64,6 @@ class MainViewModel @Inject constructor(
     }
 
     fun onSearchTextChange(string: String) {
-        Log.d("waa", "onSearchTextChange: $string")
         uiScope.launch(contextProvider.Main) {
             searchSuggestions.value = if (string.isNotBlank()) {
                 withContext(contextProvider.IO) {

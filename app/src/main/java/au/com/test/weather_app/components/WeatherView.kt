@@ -9,6 +9,7 @@ import au.com.test.weather_app.R
 import au.com.test.weather_app.data.domain.entities.WeatherData
 import au.com.test.weather_app.util.GlideApp
 import au.com.test.weather_app.util.TemperatureUtil
+import au.com.test.weather_app.util.gone
 import kotlinx.android.synthetic.main.layout_weather_main.view.*
 import kotlin.math.roundToInt
 
@@ -30,6 +31,7 @@ class WeatherView : ConstraintLayout {
     }
 
     fun update(data: WeatherData) {
+        txtEmpty.gone()
         val iconUrl = String.format(
             LocalProperties.Network.API_WEATHER_ICON_URL, data.weatherIcon
         )
