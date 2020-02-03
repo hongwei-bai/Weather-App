@@ -10,6 +10,8 @@ import au.com.test.weather_app.data.domain.entities.WeatherData
 import au.com.test.weather_app.util.GlideApp
 import au.com.test.weather_app.util.TemperatureUtil
 import au.com.test.weather_app.util.gone
+import au.com.test.weather_app.util.hide
+import au.com.test.weather_app.util.show
 import kotlinx.android.synthetic.main.layout_weather_main.view.*
 import kotlin.math.roundToInt
 
@@ -32,6 +34,7 @@ class WeatherView : ConstraintLayout {
 
     fun update(data: WeatherData) {
         txtEmpty.gone()
+        layoutWeatherInfoContainer.show()
         val iconUrl = String.format(
             LocalProperties.Network.API_WEATHER_ICON_URL, data.weatherIcon
         )
@@ -45,6 +48,18 @@ class WeatherView : ConstraintLayout {
         )
         txtHumidity.text = resources.getString(R.string.humidity, data.humidity)
         txtWind.text = resources.getString(R.string.wind_speed, data.windSpeed.toString())
+    }
+
+    fun showWelcome() {
+        layoutWeatherInfoContainer.hide()
+        txtEmpty.show()
+        txtEmpty.text = resources.getString(R.string.welcome)
+    }
+
+    fun showError() {
+        layoutWeatherInfoContainer.hide()
+        txtEmpty.show()
+        txtEmpty.text = resources.getString(R.string.empty_view)
     }
 
     private fun initialize(context: Context) {

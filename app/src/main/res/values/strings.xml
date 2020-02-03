@@ -27,4 +27,5 @@
 
     <string name="general_error">Oops. Something went wrong.</string>
     <string name="empty_view">Oops. No data.</string>
+    <string name="welcome">Welcome!</string>
 </resources>

@@ -107,7 +107,10 @@ class MainActivity : BaseActivity(), SwipeRefreshLayout.OnRefreshListener {
                 )
                 txtTitle.clearFocus()
                 hideKeyboard()
-            } ?: layoutToolbar.switchSearchMode(true)
+            } ?: run {
+                layoutToolbar.switchSearchMode(true)
+                layoutCurrentLocationWeather.showWelcome()
+            }
         })
 
         viewModel.recentRecords.observe(this, Observer { recentRecords ->
@@ -120,6 +123,7 @@ class MainActivity : BaseActivity(), SwipeRefreshLayout.OnRefreshListener {
         viewModel.uiError.observe(this, Observer { exception ->
             layoutSwipeRefresh.isRefreshing = false
             if (exception != null) {
+                layoutCurrentLocationWeather.showError()
                 Snackbar.make(layoutSwipeRefresh, R.string.general_error, Snackbar.LENGTH_LONG).show()
             }
         })

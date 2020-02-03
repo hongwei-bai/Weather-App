@@ -81,7 +81,7 @@ class MainViewModel @Inject constructor(
     }
 
     fun fetch(lat: Double, lon: Double) {
-        uiScope.launch {
+        uiScope.launch(handler) {
             withContext(contextProvider.IO) {
                 logger.i(TAG, "fetch(lat, lon): queryWeatherByCoordinate lat: $lat, lon: $lon")
                 weatherRepository.queryWeatherByCoordinate(lat, lon)
@@ -108,6 +108,24 @@ class MainViewModel @Inject constructor(
             }?.let {
                 logger.i(TAG, "fetch(WeatherData): new current weather: $it")
                 updateLocationRecords(it, data.zipCode)
+            }
+        }
+    }
+
+    fun fetch(keyWord: String, countryCode: String) {
+        var zipCode: Long? = null
+        uiScope.launch(handler) {
+            withContext(contextProvider.IO) {
+                with(weatherRepository) {
+                    (keyWord.toLongOrNull()?.let {
+                        logger.i(TAG, "fetch(): queryWeatherByZipCode zip: $it, countryCode: $countryCode")
+                        zipCode = it
+                        queryWeatherByZipCode(it, countryCode)
+                    } ?: queryWeatherByCityName(keyWord, countryCode))
+                }
+            }?.let {
+                logger.i(TAG, "fetch(): new current weather: $it")
+                updateLocationRecords(it, zipCode)
             }
         }
     }
@@ -149,24 +167,6 @@ class MainViewModel @Inject constructor(
             weatherRepository.getLastLocationRecord()?.let { data ->
                 fetch(data)
             } ?: emitNullCurrentWeatherLiveData()
-        }
-    }
-
-    fun fetch(keyWord: String, countryCode: String) {
-        var zipCode: Long? = null
-        uiScope.launch(handler) {
-            withContext(contextProvider.IO) {
-                with(weatherRepository) {
-                    (keyWord.toLongOrNull()?.let {
-                        logger.i(TAG, "fetch(): queryWeatherByZipCode zip: $it, countryCode: $countryCode")
-                        zipCode = it
-                        queryWeatherByZipCode(it, countryCode)
-                    } ?: queryWeatherByCityName(keyWord, countryCode))
-                }
-            }?.let {
-                logger.i(TAG, "fetch(): new current weather: $it")
-                updateLocationRecords(it, zipCode)
-            }
         }
     }
 
