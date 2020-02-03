@@ -1,6 +1,7 @@
 package au.com.test.weather_app.data
 
 import android.content.Context
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.LiveData
 import androidx.paging.Config
 import androidx.paging.PagedList
@@ -28,34 +29,33 @@ class WeatherManager @Inject constructor(
     private val cache: Cache
 ) :
     WeatherRepository {
-    private val weatherDao = WeatherDb.get(context).weatherDao()
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    var weatherDao = WeatherDb.get(context).weatherDao()
 
     override fun getCityList(): List<City> =
         localOpenWeatherMapDataSource.getCityList()
 
-    override suspend fun queryWeatherByCityName(
-        cityName: String,
-        countryCode: String?
-    ): WeatherData? = WeatherMapper.mapToDomainEntities(openWeatherMapDataSource.getWeatherByCityName(cityName, countryCode))
+    override suspend fun queryWeatherByCityName(cityName: String, countryCode: String?): WeatherData? =
+        WeatherMapper.mapToDomainEntities(openWeatherMapDataSource.getWeatherByCityName(cityName, countryCode))
 
-    override suspend fun queryWeatherById(cityId: Long): WeatherData? =
-        WeatherMapper.mapToDomainEntities(openWeatherMapDataSource.getWeatherById(cityId))
+    override suspend fun queryWeatherById(cityId: Long?): WeatherData? =
+        cityId?.let { WeatherMapper.mapToDomainEntities(openWeatherMapDataSource.getWeatherById(it)) }
 
     override suspend fun queryWeatherByCoordinate(lat: Double, lon: Double): WeatherData? =
         WeatherMapper.mapToDomainEntities(openWeatherMapDataSource.getWeatherByCoordinate(lat, lon))
 
-    override suspend fun queryWeatherByZipCode(
-        zipCode: Long,
-        countryCode: String?
-    ): WeatherData? =
-        WeatherMapper.mapToDomainEntities(openWeatherMapDataSource.getWeatherByZipCode(zipCode, countryCode))
+    override suspend fun queryWeatherByZipCode(zipCode: Long?, countryCode: String?): WeatherData? =
+        zipCode?.let { WeatherMapper.mapToDomainEntities(openWeatherMapDataSource.getWeatherByZipCode(it, countryCode)) }
 
     override fun getAllLocationRecordsSortByLatestUpdate(): LiveData<PagedList<WeatherData>> =
         weatherDao.allRecordByLastUpdate().toLiveData(Config(PAGE_SIZE, MAX_SIZE, ENABLE_PLACE_HOLDERS))
 
     override fun getLastLocationRecord(): WeatherData? = weatherDao.latestRecord()
 
-    override fun getLocationRecordByCityId(cityId: Long): WeatherData? = weatherDao.recordByCityId(cityId)
+    override fun getLocationRecordByCityId(cityId: Long?): WeatherData? = cityId?.let { weatherDao.recordByCityId(it) }
+
+    override fun getLocationRecordByZipCode(zipCode: Long?, countryCode: String?): WeatherData? =
+        zipCode?.let { countryCode?.let { weatherDao.recordByZipCode(zipCode, countryCode) } }
 
     override fun getLocationRecordByLocation(lat: Double, lon: Double): WeatherData? = weatherDao.recordByLocation(lat, lon)
 

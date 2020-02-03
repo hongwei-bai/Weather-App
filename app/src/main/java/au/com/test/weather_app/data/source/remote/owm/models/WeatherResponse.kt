@@ -2,7 +2,7 @@ package au.com.test.weather_app.data.source.remote.owm.models
 
 import au.com.test.weather_app.data.source.remote.owm.models.WeatherResponseCode.SUCCESS
 
-data class WeatherRepsonse(
+data class WeatherResponse(
     val coord: Coordinate,
     val weather: List<Weather>,
     val base: String,

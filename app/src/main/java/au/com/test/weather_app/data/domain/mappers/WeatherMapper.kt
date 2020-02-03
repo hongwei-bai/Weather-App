@@ -1,15 +1,17 @@
 package au.com.test.weather_app.data.domain.mappers
 
 import au.com.test.weather_app.data.domain.entities.WeatherData
-import au.com.test.weather_app.data.source.remote.owm.models.WeatherRepsonse
+import au.com.test.weather_app.data.source.remote.owm.models.WeatherResponse
 
 object WeatherMapper {
-    fun mapToDomainEntities(response: WeatherRepsonse): WeatherData? =
+    fun mapToDomainEntities(response: WeatherResponse): WeatherData? =
         if (response.isSuccess()) {
             WeatherData(
                 id = 0,
                 cityId = if (response.id > 0) response.id else null,
                 cityName = if (response.name.isNotBlank()) response.name else null,
+                countryCode = if (response.sys.country.isNotBlank()) response.sys.country else null,
+                zipCode = null,
                 latitude = response.coord.lat,
                 longitude = response.coord.lon,
                 weatherConditionId = response.weather[0].id,

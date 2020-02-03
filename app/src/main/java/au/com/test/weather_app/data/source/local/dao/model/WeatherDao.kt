@@ -1,7 +1,11 @@
 package au.com.test.weather_app.data.source.local.dao.model
 
 import androidx.paging.DataSource
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.Query
+import androidx.room.Update
 import au.com.test.weather_app.data.domain.entities.WeatherData
 
 @Dao
@@ -13,7 +17,10 @@ interface WeatherDao {
     fun latestRecord(): WeatherData?
 
     @Query("SELECT * FROM WeatherData WHERE cityId = :cityId")
-    fun recordByCityId(cityId: Long): WeatherData
+    fun recordByCityId(cityId: Long): WeatherData?
+
+    @Query("SELECT * FROM WeatherData WHERE zipCode = :zipCode AND countryCode = :countryCode")
+    fun recordByZipCode(zipCode: Long, countryCode: String): WeatherData?
 
     @Query("SELECT * FROM WeatherData WHERE latitude = :latitude AND longitude = :longitude")
     fun recordByLocation(latitude: Double, longitude: Double): WeatherData?

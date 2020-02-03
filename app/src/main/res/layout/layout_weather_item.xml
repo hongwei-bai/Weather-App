@@ -17,7 +17,7 @@
         android:contentDescription="@string/recent_item_location_icon_content_description"
         android:src="@drawable/ic_location_on_black_24dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/txtTitle" />
+        app:layout_constraintTop_toTopOf="@id/txtLastUpdate" />
 
     <TextView
         android:id="@+id/txtTitle"
@@ -25,8 +25,8 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/spacing_s"
         android:textAppearance="@style/WeatherAppTheme.Current.Subtitle"
+        app:layout_constraintBaseline_toBaselineOf="@id/txtLastUpdate"
         app:layout_constraintStart_toEndOf="@id/imgGpsIcon"
-        app:layout_constraintTop_toTopOf="parent"
         tools:text="Sydney, AU" />
 
     <TextView
@@ -34,7 +34,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="@style/WeatherAppTheme.Current.Subtitle2"
-        app:layout_constraintBaseline_toBaselineOf="@id/txtTitle"
+        app:layout_constraintBaseline_toBaselineOf="@id/txtLastUpdate"
         app:layout_constraintStart_toEndOf="@id/txtTitle"
         tools:text="-33.000000, 151.000000" />
 
@@ -44,8 +44,8 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/spacing_s"
         android:textAppearance="@style/WeatherAppTheme.Current.Subtitle3"
-        app:layout_constraintBaseline_toBaselineOf="@id/txtTitle"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         tools:text="2 hours ago" />
 
     <ImageView

@@ -13,7 +13,6 @@ import au.com.test.weather_app.util.DateUtil
 import au.com.test.weather_app.util.GlideApp
 import au.com.test.weather_app.util.TemperatureUtil
 import au.com.test.weather_app.util.gone
-import au.com.test.weather_app.util.hide
 import au.com.test.weather_app.util.show
 import kotlinx.android.synthetic.main.layout_weather_item.view.*
 import kotlin.math.roundToInt
@@ -34,21 +33,14 @@ class LocationRecordItemHolder(itemView: View) : RecyclerView.ViewHolder(itemVie
             )
             GlideApp.with(imgIcon).load(iconUrl).into(imgIcon)
 
-            if (data.cityName != null) {
-                txtTitle.text = data.cityName
-                txtTitle.show()
-                imgGpsIcon.gone()
-                txtGpsLocation.gone()
-            } else {
-                txtTitle.text = ""
-                txtTitle.hide()
-                imgGpsIcon.show()
-                txtGpsLocation.show()
-                txtGpsLocation.text = itemView.resources.getString(
-                    R.string.gps_location,
-                    data.latitude,
-                    data.longitude
-                )
+            txtTitle.text = data.getCityTitle() ?: ""
+            data.isGpsCoordinate().let { isGpsCoordinate ->
+                txtTitle.show(!isGpsCoordinate)
+                imgGpsIcon.show(isGpsCoordinate)
+                txtGpsLocation.show(isGpsCoordinate)
+                if (isGpsCoordinate) {
+                    txtGpsLocation.text = itemView.resources.getString(R.string.gps_location, data.latitude, data.longitude)
+                }
             }
             txtMain.text = data.weather
             txtTemperature.text = resources.getString(

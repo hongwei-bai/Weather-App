@@ -8,6 +8,8 @@ data class WeatherData(
     @PrimaryKey(autoGenerate = true) var id: Int,
     val cityId: Long?,
     val cityName: String?,
+    val countryCode: String?,
+    var zipCode: Long?,
     val latitude: Double,
     val longitude: Double,
     val weatherConditionId: Long,
@@ -21,4 +23,24 @@ data class WeatherData(
     val windSpeed: Float,
     val windDegree: Int,
     var lastUpdate: Long
-)
+) {
+    fun getCityTitle(): String? = if (cityName != null && countryCode != null) {
+        "$cityName ${zipCode ?: ""} $countryCode"
+    } else {
+        null
+    }
+
+    fun isGpsCoordinate(): Boolean = cityId == null && zipCode == null
+
+    fun getQueryGroup(): QueryGroup =
+        if (cityId != null) {
+            QueryGroup.CityId
+        } else if (zipCode != null && countryCode != null) {
+            QueryGroup.ZipCode
+        } else {
+            QueryGroup.Corrdinate
+        }
+
+    // Sorted by priority
+    enum class QueryGroup { CityId, ZipCode, Corrdinate }
+}

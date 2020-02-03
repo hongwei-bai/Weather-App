@@ -88,7 +88,7 @@ class MainActivity : BaseActivity() {
         viewModel.currentWeather.observe(this, Observer { currentWeather ->
             currentWeather?.let {
                 updateCurrentWeather(currentWeather)
-                layoutToolbar.title = currentWeather.cityName ?: getString(
+                layoutToolbar.title = currentWeather.getCityTitle() ?: getString(
                     R.string.unknown_location,
                     currentWeather.latitude,
                     currentWeather.longitude
