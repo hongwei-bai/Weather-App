@@ -1,0 +1,53 @@
+Subject: Build a “Weather App”
+
+ 
+
+High-level requirements:
+
+ 
+
+The following list of functional requirements is prioritized. Implement as many of these points as you can, given the time you have. Do only as much as your time allows. We favor “quality over quantity”. Feel free to use any libraries that make the development of your app faster and more elegant.
+
+ 
+
+Search by city name or zip code
+Implement a search to allow the user to enter a city name or zip code. The result of the search is to display the current weather information for the searched location.
+
+ 
+
+Search by GPS
+On the same search screen, also allow user to use GPS location instead to get current weather information.
+
+ 
+
+Most recent search location loads automatically
+When you come back to the app after closing it, the weather for the most recent search is displayed.
+
+ 
+
+Recent Searches
+Implement a screen that lists recently searched locations. You can tap on a recent search location and see the current weather location.
+
+ 
+
+Delete recent searches
+Provide the ability to delete one or more recently searched locations.
+
+ 
+
+Hard requirements:
+
+Use the OpenWeatherMap API: http://openweathermap.org/api
+Weather API - OpenWeatherMap
+Simple and fast and free weather API from OpenWeatherMap you have access to current weather data, hourly, 5- and 16-day forecasts. Historical weather data for 40 years back for any coordinate. Weather maps, UV Index, air pollution and historical data
+openweathermap.org
+. You may use any of json, xml, or another payload.
+You may create your own API key or use this one: 95d190a434083879a6398aafd54d9e73
+Please do not use the map solution provided by openweathermap.org
+Unit test your code.
+ 
+
+Submission:
+
+Provide a link to a github repo, and reply to iadzhigirey@ebay.com
+Please be prepared to speak about the choices you make across the board such as code design, choice of libraries, test coverage, use of UI paradigms, etc.
