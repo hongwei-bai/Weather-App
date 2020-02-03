@@ -17,7 +17,9 @@ import au.com.test.weather_app.components.adapter.LocationRecordListAdapter
 import au.com.test.weather_app.di.base.BaseActivity
 import au.com.test.weather_app.di.components.DaggerActivityComponent
 import au.com.test.weather_app.di.modules.ActivityModule
+import au.com.test.weather_app.home.search.SearchSuggestionListAdapter
 import au.com.test.weather_app.locationrecord.LocationRecordActivity
+import au.com.test.weather_app.util.gone
 import au.com.test.weather_app.util.show
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_home.*
@@ -37,6 +39,8 @@ class MainActivity : BaseActivity(), SwipeRefreshLayout.OnRefreshListener {
 
     private lateinit var locationRecordListAdapter: LocationRecordListAdapter
 
+    private lateinit var searchSuggestionListAdapter: SearchSuggestionListAdapter
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
@@ -45,8 +49,11 @@ class MainActivity : BaseActivity(), SwipeRefreshLayout.OnRefreshListener {
         observeViewModelState()
 
         initializeRecyclerView()
+        initializeSearchSuggestionRecyclerView()
         initializeToolbar()
         initializeSwipeRefreshLayout()
+
+        viewModel.initializeCityIndexTable()
     }
 
     override fun onResume() {
@@ -116,6 +123,11 @@ class MainActivity : BaseActivity(), SwipeRefreshLayout.OnRefreshListener {
                 Snackbar.make(layoutSwipeRefresh, R.string.general_error, Snackbar.LENGTH_LONG).show()
             }
         })
+
+        viewModel.searchSuggestions.observe(this, Observer { list ->
+            recyclerSearchSuggestion.show(list?.size ?: 0 > 0)
+            searchSuggestionListAdapter.data = list
+        })
     }
 
     private fun initializeSwipeRefreshLayout() {
@@ -132,6 +144,23 @@ class MainActivity : BaseActivity(), SwipeRefreshLayout.OnRefreshListener {
         }
     }
 
+    private fun initializeSearchSuggestionRecyclerView() {
+        searchSuggestionListAdapter = SearchSuggestionListAdapter(this)
+        recyclerSearchSuggestion.layoutManager = LinearLayoutManager(this)
+        recyclerSearchSuggestion.adapter = searchSuggestionListAdapter
+        recyclerSearchSuggestion.addItemDecoration(DividerItemDecoration(this, VERTICAL))
+        recyclerSearchSuggestion.show()
+        searchSuggestionListAdapter.setOnItemClickListener { _, cityData ->
+            resetSearchSuggestion()
+            viewModel.fetch(cityData.name, cityData.countryCode)
+        }
+    }
+
+    private fun resetSearchSuggestion() {
+        layoutToolbar.clearText()
+        recyclerSearchSuggestion.gone()
+    }
+
     private fun initializeToolbar() {
         with(layoutToolbar) {
             isEnableSearch = true
@@ -142,13 +171,20 @@ class MainActivity : BaseActivity(), SwipeRefreshLayout.OnRefreshListener {
             setOnButtonClick { button, input, _ ->
                 when (button) {
                     LeftButton -> startActivity(LocationRecordActivity.intent(context))
-                    LeftButtonOnSearchMode -> getWeatherForCurrentLocation()
-                    RightButtonOnSearchMode -> viewModel.fetch(input)
+                    LeftButtonOnSearchMode -> {
+                        resetSearchSuggestion()
+                        getWeatherForCurrentLocation()
+                    }
+                    RightButtonOnSearchMode -> {
+                        resetSearchSuggestion()
+                        viewModel.fetch(input)
+                    }
                     else -> {
                         // Do nothing
                     }
                 }
             }
+            setOnTextWatchListener { text, _ -> viewModel.onSearchTextChange(text) }
         }
     }
 

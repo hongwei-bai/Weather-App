@@ -42,3 +42,7 @@ hs_err_pid*
 gradle.properties
 *.jks
 *.pepk
+
+# local city list
+#city.list.json
+current.city.list.json

@@ -25,6 +25,7 @@ object LocalProperties : CommonLocalProperties() {
 
     object Local {
         const val CITY_LIST = "city.list.json"
+        const val SEARCH_LIST_LIMIT = 10
     }
 
     object Config {

@@ -3,12 +3,9 @@ package au.com.test.weather_app.data
 import androidx.lifecycle.LiveData
 import androidx.paging.PagedList
 import au.com.test.weather_app.data.domain.entities.WeatherData
-import au.com.test.weather_app.data.source.local.owm.models.City
 
 
 interface WeatherRepository {
-    fun getCityList(): List<City>
-
     suspend fun queryWeatherByCityName(cityName: String, countryCode: String? = null): WeatherData?
 
     suspend fun queryWeatherById(cityId: Long?): WeatherData?

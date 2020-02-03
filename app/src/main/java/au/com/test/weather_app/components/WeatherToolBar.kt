@@ -106,6 +106,10 @@ class WeatherToolBar : ConstraintLayout {
         switchSearchMode(false)
     }
 
+    fun clearText() {
+        editTxtSearh.setText("")
+    }
+
     fun enableButton(buttonId: ToolbarButton, visible: Boolean) {
         buttonId.visible = visible
         switchSearchMode()

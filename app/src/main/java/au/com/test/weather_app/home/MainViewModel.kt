@@ -1,10 +1,13 @@
 package au.com.test.weather_app.home
 
+import android.util.Log
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.paging.PagedList
+import au.com.test.weather_app.data.CityRepository
 import au.com.test.weather_app.data.WeatherRepository
+import au.com.test.weather_app.data.domain.entities.CityData
 import au.com.test.weather_app.data.domain.entities.WeatherData
 import au.com.test.weather_app.data.domain.entities.WeatherData.QueryGroup.CityId
 import au.com.test.weather_app.data.domain.entities.WeatherData.QueryGroup.Corrdinate
@@ -12,6 +15,7 @@ import au.com.test.weather_app.data.domain.entities.WeatherData.QueryGroup.ZipCo
 import au.com.test.weather_app.di.base.BaseViewModel
 import au.com.test.weather_app.util.CoroutineContextProvider
 import au.com.test.weather_app.util.Logger
+import au.com.test.weather_app.util.PerformanceUtil
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -20,6 +24,7 @@ import javax.inject.Inject
 
 class MainViewModel @Inject constructor(
     private val weatherRepository: WeatherRepository,
+    private val cityRepository: CityRepository,
     private val logger: Logger,
     private val contextProvider: CoroutineContextProvider
 ) : BaseViewModel() {
@@ -32,8 +37,9 @@ class MainViewModel @Inject constructor(
 
     val currentWeather: MutableLiveData<WeatherData> = MutableLiveData()
 
-    val recentRecords: LiveData<PagedList<WeatherData>> =
-        weatherRepository.getAllLocationRecordsSortByLatestUpdate()
+    val recentRecords: LiveData<PagedList<WeatherData>> = weatherRepository.getAllLocationRecordsSortByLatestUpdate()
+
+    val searchSuggestions: MutableLiveData<List<CityData>> = MutableLiveData()
 
     val uiError: MutableLiveData<Throwable?> = MutableLiveData()
 
@@ -44,6 +50,29 @@ class MainViewModel @Inject constructor(
 
     fun go() {
         fetchLatestLocation()
+    }
+
+    fun initializeCityIndexTable() {
+        uiScope.launch(contextProvider.IO) {
+            val count = cityRepository.getCityCount()
+            logger.i(TAG, "initializeCityIndexTable city db count: $count")
+
+            if (count == 0L) {
+                val list = PerformanceUtil<List<CityData>>().tick { cityRepository.readCityList() }
+                PerformanceUtil<Unit>().tick { cityRepository.writeCityList(list) }
+            }
+        }
+    }
+
+    fun onSearchTextChange(string: String) {
+        Log.d("waa", "onSearchTextChange: $string")
+        uiScope.launch(contextProvider.Main) {
+            searchSuggestions.value = if (string.isNotBlank()) {
+                withContext(contextProvider.IO) {
+                    cityRepository.lookupCity(string)
+                }
+            } else emptyList()
+        }
     }
 
     fun fetch(input: String) {
@@ -125,7 +154,7 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    private fun fetch(keyWord: String, countryCode: String) {
+    fun fetch(keyWord: String, countryCode: String) {
         var zipCode: Long? = null
         uiScope.launch(handler) {
             withContext(contextProvider.IO) {

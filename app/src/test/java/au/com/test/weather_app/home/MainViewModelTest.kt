@@ -3,6 +3,7 @@ package au.com.test.weather_app.home
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import au.com.test.weather_app.LocalProperties
+import au.com.test.weather_app.data.CityRepository
 import au.com.test.weather_app.data.WeatherRepository
 import au.com.test.weather_app.data.domain.entities.WeatherData
 import au.com.test.weather_app.data.source.local.owm.models.City
@@ -45,6 +46,7 @@ class MainViewModelTest {
 
     private lateinit var viewModel: MainViewModel
     private var weatherRepository: WeatherRepository = mock()
+    private var cityRepository: CityRepository = mock()
 
     @Mock
     lateinit var logger: Logger
@@ -57,6 +59,7 @@ class MainViewModelTest {
         MockitoAnnotations.initMocks(this)
         viewModel = MainViewModel(
             weatherRepository,
+            cityRepository,
             logger,
             TestContextProvider()
         ).apply {

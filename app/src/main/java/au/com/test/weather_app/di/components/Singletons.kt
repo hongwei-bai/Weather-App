@@ -1,6 +1,7 @@
 package au.com.test.weather_app.di.components
 
 import android.content.Context
+import au.com.test.weather_app.data.CityRepository
 import au.com.test.weather_app.data.WeatherRepository
 import au.com.test.weather_app.data.source.cache.Cache
 import au.com.test.weather_app.data.source.local.owm.LocalOpenWeatherMapDataSource
@@ -13,6 +14,8 @@ interface Singletons {
     fun provideContext(): Context
 
     fun provideWeatherRepository(): WeatherRepository
+
+    fun provideCityRepository(): CityRepository
 
     fun provideOpenWeatherMapDataSource(): OpenWeatherMapDataSource
 
