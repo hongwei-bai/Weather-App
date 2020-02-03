@@ -23,6 +23,7 @@ class LocationRecordItemHolder(itemView: View) : RecyclerView.ViewHolder(itemVie
         position: Int,
         workMode: WorkMode,
         clickListener: ((Int, WeatherData) -> Unit)?,
+        longClickListener: ((Int, WeatherData) -> Unit)?,
         deleteListener: ((Int, WeatherData) -> Unit)?,
         selectListener: ((Int, WeatherData, Boolean) -> Unit)?,
         itemSelectStatus: Array<Boolean>
@@ -65,7 +66,7 @@ class LocationRecordItemHolder(itemView: View) : RecyclerView.ViewHolder(itemVie
                 }
             }
 
-            setOnItemClickListener(position, data, clickListener, deleteListener, selectListener, itemSelectStatus)
+            setOnItemClickListener(position, data, clickListener, longClickListener, deleteListener, selectListener, itemSelectStatus)
         }
     }
 
@@ -73,6 +74,7 @@ class LocationRecordItemHolder(itemView: View) : RecyclerView.ViewHolder(itemVie
         position: Int,
         data: WeatherData,
         clickListener: ((Int, WeatherData) -> Unit)?,
+        longClickListener: ((Int, WeatherData) -> Unit)?,
         deleteListener: ((Int, WeatherData) -> Unit)?,
         selectListener: ((Int, WeatherData, Boolean) -> Unit)?,
         itemSelectStatus: Array<Boolean>
@@ -86,6 +88,10 @@ class LocationRecordItemHolder(itemView: View) : RecyclerView.ViewHolder(itemVie
                 }
             }
             clickListener?.invoke(position, data)
+        }
+        itemView.setOnLongClickListener {
+            longClickListener?.invoke(position, data)
+            false
         }
         itemView.imgDelete.setOnClickListener { deleteListener?.invoke(position, data) }
     }

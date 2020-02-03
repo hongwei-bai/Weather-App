@@ -13,6 +13,8 @@ class LocationRecordListAdapter(private val context: Context) :
     PagedListAdapter<WeatherData, LocationRecordItemHolder>(diffCallback) {
     private var onItemClickListener: ((position: Int, data: WeatherData) -> Unit)? = null
 
+    private var onItemLongClickListener: ((position: Int, data: WeatherData) -> Unit)? = null
+
     private var onItemDeleteClickListener: ((position: Int, data: WeatherData) -> Unit)? = null
 
     private var onItemSelectListener: ((position: Int, data: WeatherData, isSelect: Boolean) -> Unit)? = null
@@ -43,10 +45,14 @@ class LocationRecordListAdapter(private val context: Context) :
     override fun getItemCount(): Int = data.size
 
     override fun onBindViewHolder(holder: LocationRecordItemHolder, position: Int) =
-        holder.bind(data[position], position, workMode, onItemClickListener, onItemDeleteClickListener, onItemSelectListener, itemSelectStatus)
+        holder.bind(data[position], position, workMode, onItemClickListener, onItemLongClickListener, onItemDeleteClickListener, onItemSelectListener, itemSelectStatus)
 
     fun setOnItemClickListener(listener: (Int, WeatherData) -> Unit) {
         onItemClickListener = listener
+    }
+
+    fun setOnItemLongClickListener(listener: (Int, WeatherData) -> Unit) {
+        onItemLongClickListener = listener
     }
 
     fun setOnItemDeleteClickListener(listener: (Int, WeatherData) -> Unit) {

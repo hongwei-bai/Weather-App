@@ -8,13 +8,14 @@
     <string name="history_item_delete_icon_content_description">Delete current location record.</string>
     <string name="history_item_select_icon_content_description">Toggle current location record for batch delete.</string>
 
-    <string name="search_hint">type city name or zip code to search&#8230;</string>
+    <string name="search_hint">e.g. Sydney/Sydney AU/2010 AU</string>
     <string name="permission_request_location">Location permission is required to accquire current location.</string>
     <string name="celsius">%d\u2103</string>
     <string name="fahrenheit">%d\u2109</string>
     <string name="humidity">Humidity %d%%</string>
     <string name="wind_speed">Wind speed: %s m/s</string>
-    <string name="unknown_location">Unknown location\n%f, %f</string>
+    <string name="unknown_location_prefix">GPS location</string>
+    <string name="unknown_location">GPS location\n%f, %f</string>
     <string name="gps_location">%f, %f</string>
     <string name="just_now">Just now</string>
     <string name="minutes_ago">%d minutes ago</string>
@@ -23,4 +24,6 @@
 
     <string name="menu_item_delete_single">Delete single record</string>
     <string name="menu_item_delete_multiple">Delete multiple records</string>
+
+    <string name="general_error">Oops. Something went wrong.</string>
 </resources>

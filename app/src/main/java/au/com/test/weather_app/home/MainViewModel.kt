@@ -12,6 +12,7 @@ import au.com.test.weather_app.data.domain.entities.WeatherData.QueryGroup.ZipCo
 import au.com.test.weather_app.di.base.BaseViewModel
 import au.com.test.weather_app.util.CoroutineContextProvider
 import au.com.test.weather_app.util.Logger
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.regex.Pattern
@@ -34,55 +35,22 @@ class MainViewModel @Inject constructor(
     val recentRecords: LiveData<PagedList<WeatherData>> =
         weatherRepository.getAllLocationRecordsSortByLatestUpdate()
 
+    val uiError: MutableLiveData<Throwable?> = MutableLiveData()
+
+    private val handler = CoroutineExceptionHandler { _, exception ->
+        logger.e(TAG, "caught view model level exception: ${exception.localizedMessage}")
+        uiError.value = exception
+    }
+
     fun go() {
-        uiScope.launch {
-            var queryZipCode: Long? = null
-            withContext(contextProvider.IO) {
-                weatherRepository.getLastLocationRecord()?.run {
-                    queryZipCode = zipCode
-                    val queryGroup = getQueryGroup()
-                    println("go(): last location record: $cityName, zip: $zipCode, location: $latitude, $longitude, queryGroup: $queryGroup")
-                    logger.i(TAG, "go(): last location record: $cityName, zip: $zipCode, location: $latitude, $longitude, queryGroup: $queryGroup")
-                    when (queryGroup) {
-                        CityId -> weatherRepository.queryWeatherById(cityId)
-                        ZipCode -> weatherRepository.queryWeatherByZipCode(zipCode, countryCode)
-                        Corrdinate -> {
-                            println("go(): call queryWeatherByCoordinate")
-                            weatherRepository.queryWeatherByCoordinate(latitude, longitude)
-                        }
-                    }
-                } ?: emitNullCurrentWeatherLiveData()
-            }?.let {
-                println("go(): new current weather: $it")
-                logger.i(TAG, "go(): new current weather: $it")
-                updateLocationRecords(it, queryZipCode)
-            }
-        }
+        fetchLatestLocation()
     }
 
     fun fetch(input: String) {
         logger.i(TAG, "fetch(): input string: $input")
-        val countryCodeWithDividers: String? = getCountryCode(input)
-
-        val keyWord = trimValidCityNameOrZipCode(input, countryCodeWithDividers)
-        val countryCode = trimValidCountryCode(countryCodeWithDividers)
-        logger.i(TAG, "fetch(): parsed keyWord: $keyWord, countryCode: $countryCode")
-
-        var zipCode: Long? = null
-        uiScope.launch {
-            withContext(contextProvider.IO) {
-                with(weatherRepository) {
-                    (keyWord.toLongOrNull()?.let {
-                        logger.i(TAG, "fetch(): queryWeatherByZipCode zip: $it, countryCode: $countryCode")
-                        zipCode = it
-                        queryWeatherByZipCode(it, countryCode)
-                    } ?: queryWeatherByCityName(keyWord, countryCode))
-                }
-            }?.let {
-                logger.i(TAG, "fetch(): new current weather: $it")
-                updateLocationRecords(it, zipCode)
-            }
-        }
+        val info = parseInput(input)
+        logger.i(TAG, "fetch(): parsed keyWord: ${info.first}, countryCode: ${info.second}")
+        fetch(info.first, info.second)
     }
 
     fun fetch(lat: Double, lon: Double) {
@@ -97,13 +65,36 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    fun fetch(data: WeatherData) {
+        uiScope.launch(handler) {
+            withContext(contextProvider.IO) {
+                val queryGroup = data.getQueryGroup()
+                logger.i(TAG, "fetch(WeatherData): last location record: ${data.cityName}, zip: ${data.zipCode}, location: ${data.latitude}, ${data.longitude}, queryGroup: $queryGroup")
+                when (queryGroup) {
+                    CityId -> weatherRepository.queryWeatherById(data.cityId)
+                    ZipCode -> weatherRepository.queryWeatherByZipCode(data.zipCode, data.countryCode)
+                    Corrdinate -> {
+                        println("go(): call queryWeatherByCoordinate")
+                        weatherRepository.queryWeatherByCoordinate(data.latitude, data.longitude)
+                    }
+                }
+            }?.let {
+                logger.i(TAG, "fetch(WeatherData): new current weather: $it")
+                updateLocationRecords(it, data.zipCode)
+            }
+        }
+    }
+
     private fun emitNullCurrentWeatherLiveData(): WeatherData? {
         uiScope.launch { currentWeather.value = null }
         return null
     }
 
     private fun updateLocationRecords(data: WeatherData, queryZipCode: Long? = null) {
-        uiScope.launch { currentWeather.value = data }
+        uiScope.launch {
+            currentWeather.value = data
+            uiError.value = null
+        }
         uiScope.launch(contextProvider.IO) {
             data.zipCode = queryZipCode
             val match: WeatherData? = getLocationRecord(data)
@@ -124,6 +115,39 @@ class MainViewModel @Inject constructor(
             ZipCode -> getLocationRecordByZipCode(data.zipCode, data.countryCode)
             Corrdinate -> getLocationRecordByLocation(data.latitude, data.longitude)
         }
+    }
+
+    private fun fetchLatestLocation() {
+        uiScope.launch(contextProvider.IO) {
+            weatherRepository.getLastLocationRecord()?.let { data ->
+                fetch(data)
+            } ?: emitNullCurrentWeatherLiveData()
+        }
+    }
+
+    private fun fetch(keyWord: String, countryCode: String) {
+        var zipCode: Long? = null
+        uiScope.launch(handler) {
+            withContext(contextProvider.IO) {
+                with(weatherRepository) {
+                    (keyWord.toLongOrNull()?.let {
+                        logger.i(TAG, "fetch(): queryWeatherByZipCode zip: $it, countryCode: $countryCode")
+                        zipCode = it
+                        queryWeatherByZipCode(it, countryCode)
+                    } ?: queryWeatherByCityName(keyWord, countryCode))
+                }
+            }?.let {
+                logger.i(TAG, "fetch(): new current weather: $it")
+                updateLocationRecords(it, zipCode)
+            }
+        }
+    }
+
+    private fun parseInput(input: String): Pair<String, String> {
+        val countryCodeWithDividers: String? = getCountryCode(input)
+        val keyWord = trimValidCityNameOrZipCode(input, countryCodeWithDividers)
+        val countryCode = trimValidCountryCode(countryCodeWithDividers)
+        return Pair(keyWord, countryCode)
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)

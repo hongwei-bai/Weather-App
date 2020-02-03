@@ -25,7 +25,7 @@ data class WeatherData(
     var lastUpdate: Long
 ) {
     fun getCityTitle(): String? = if (cityName != null && countryCode != null) {
-        "$cityName ${zipCode ?: ""} $countryCode"
+        "$cityName,  ${zipCode ?: ""} $countryCode"
     } else {
         null
     }

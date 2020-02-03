@@ -19,6 +19,8 @@ interface WeatherRepository {
 
     fun getAllLocationRecordsSortByLatestUpdate(): LiveData<PagedList<WeatherData>>
 
+    fun lookupLocationRecordsSortByLatestUpdate(keyword: String): LiveData<PagedList<WeatherData>>
+
     fun getLastLocationRecord(): WeatherData?
 
     fun getLocationRecordByCityId(cityId: Long?): WeatherData?

@@ -1,5 +1,6 @@
 package au.com.test.weather_app.locationrecord
 
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -13,12 +14,16 @@ import au.com.test.weather_app.components.WeatherToolBar.ToolbarButton.LeftButto
 import au.com.test.weather_app.components.WeatherToolBar.ToolbarButton.RightButton
 import au.com.test.weather_app.components.WeatherToolBar.ToolbarButton.SecondaryRightButton
 import au.com.test.weather_app.components.adapter.LocationRecordListAdapter
+import au.com.test.weather_app.components.adapter.LocationRecordListAdapter.WorkMode
 import au.com.test.weather_app.components.adapter.LocationRecordListAdapter.WorkMode.Delete
 import au.com.test.weather_app.components.adapter.LocationRecordListAdapter.WorkMode.MultipleDelete
+import au.com.test.weather_app.data.domain.entities.WeatherData
 import au.com.test.weather_app.di.base.BaseActivity
 import au.com.test.weather_app.di.components.DaggerActivityComponent
 import au.com.test.weather_app.di.modules.ActivityModule
+import au.com.test.weather_app.home.MainViewModel
 import kotlinx.android.synthetic.main.activity_location_record.*
+import kotlinx.android.synthetic.main.dialog_weather.*
 import javax.inject.Inject
 
 
@@ -33,13 +38,19 @@ class LocationRecordActivity : BaseActivity() {
     @Inject
     lateinit var viewModel: LocationRecordViewModel
 
+    @Inject
+    lateinit var mainViewModel: MainViewModel
+
     private lateinit var locationRecordListAdapter: LocationRecordListAdapter
+
+    private var weatherDialog: AlertDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_location_record)
 
         viewModel = getViewModelProvider(this).get(LocationRecordViewModel::class.java)
+        mainViewModel = getViewModelProvider(this).get(MainViewModel::class.java)
         observeViewModelState()
         initializeRecyclerView()
         initializeToolbar()
@@ -50,6 +61,11 @@ class LocationRecordActivity : BaseActivity() {
         super.onResume()
 
         viewModel.go()
+    }
+
+    override fun onPause() {
+        weatherDialog?.dismiss()
+        super.onPause()
     }
 
     override fun inject() {
@@ -67,6 +83,7 @@ class LocationRecordActivity : BaseActivity() {
                 notifyDataSetChanged()
             }
         })
+        mainViewModel.currentWeather.observe(this, Observer { weatherDialog?.layoutWeather?.update(it) })
     }
 
     private fun initializeRecyclerView() {
@@ -77,11 +94,17 @@ class LocationRecordActivity : BaseActivity() {
         recycler.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
 
         with(locationRecordListAdapter) {
-            setOnItemClickListener { _, _ ->
-                if (workMode == MultipleDelete) {
-                    layoutToolbar?.getButton(SecondaryRightButton)?.isSelected = isAllSelected()
+            setOnItemClickListener { _, weather ->
+                when (workMode) {
+                    Delete -> promptDialog(weather)
+                    MultipleDelete -> {
+                        layoutToolbar?.getButton(SecondaryRightButton)?.isSelected = isAllSelected()
+                        updateFloatingActionButtonVisibility()
+                    }
+                    else -> {
+                        // DO nothing
+                    }
                 }
-                updateFloatingActionButtonVisibility()
             }
             setOnItemDeleteClickListener { _, weatherData -> viewModel.delete(weatherData) }
         }
@@ -120,14 +143,29 @@ class LocationRecordActivity : BaseActivity() {
         show()
         setOnMenuItemClickListener {
             when (it.itemId) {
-                R.id.actionDeleteSingle -> locationRecordListAdapter.workMode = Delete
-                R.id.actionDeleteMultiple -> locationRecordListAdapter.workMode = MultipleDelete
+                R.id.actionDeleteSingle -> switchWorkMode(Delete)
+                R.id.actionDeleteMultiple -> switchWorkMode(MultipleDelete)
             }
-            layoutToolbar.enableButton(
-                SecondaryRightButton,
-                it.itemId == R.id.actionDeleteMultiple && locationRecordListAdapter.itemCount > 0
-            )
             true
+        }
+    }
+
+    private fun switchWorkMode(workMode: WorkMode) {
+        when (workMode) {
+            Delete -> {
+                locationRecordListAdapter.workMode = Delete
+                layoutToolbar.enableButton(SecondaryRightButton, false)
+            }
+            MultipleDelete -> {
+                locationRecordListAdapter.workMode = MultipleDelete
+                layoutToolbar.enableButton(
+                    SecondaryRightButton,
+                    locationRecordListAdapter.itemCount > 0
+                )
+            }
+            else -> {
+                // Do nothing
+            }
         }
     }
 
@@ -154,5 +192,20 @@ class LocationRecordActivity : BaseActivity() {
                 View.GONE
             }
         }
+    }
+
+    private fun promptDialog(data: WeatherData) {
+        val builder: AlertDialog.Builder = AlertDialog.Builder(this).apply {
+            if (data.getCityTitle() != null) {
+                setTitle(data.getCityTitle())
+            } else {
+                setTitle(getString(R.string.unknown_location_prefix))
+                setMessage(getString(R.string.gps_location, data.latitude, data.longitude))
+            }
+            setView(View.inflate(context, R.layout.dialog_weather, null))
+            setCancelable(true)
+        }
+        weatherDialog = builder.create().apply { show() }
+        mainViewModel.fetch(data)
     }
 }

@@ -50,6 +50,9 @@ class WeatherManager @Inject constructor(
     override fun getAllLocationRecordsSortByLatestUpdate(): LiveData<PagedList<WeatherData>> =
         weatherDao.allRecordByLastUpdate().toLiveData(Config(PAGE_SIZE, MAX_SIZE, ENABLE_PLACE_HOLDERS))
 
+    override fun lookupLocationRecordsSortByLatestUpdate(keywork: String): LiveData<PagedList<WeatherData>> =
+        weatherDao.lookupRecordsByLastUpdate(keywork).toLiveData(Config(PAGE_SIZE, MAX_SIZE, ENABLE_PLACE_HOLDERS))
+
     override fun getLastLocationRecord(): WeatherData? = weatherDao.latestRecord()
 
     override fun getLocationRecordByCityId(cityId: Long?): WeatherData? = cityId?.let { weatherDao.recordByCityId(it) }

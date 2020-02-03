@@ -8,10 +8,9 @@
     <au.com.test.weather_app.components.WeatherToolBar
         android:id="@+id/layoutToolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/toolbar_height"
         android:layout_marginTop="@dimen/spacing_xs"
         android:background="@color/colorTransparent"
-        android:minHeight="@dimen/toolbar_min_height"
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView

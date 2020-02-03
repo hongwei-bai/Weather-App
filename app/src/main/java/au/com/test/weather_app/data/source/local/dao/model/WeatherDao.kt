@@ -13,6 +13,9 @@ interface WeatherDao {
     @Query("SELECT * FROM WeatherData ORDER BY lastUpdate COLLATE NOCASE DESC")
     fun allRecordByLastUpdate(): DataSource.Factory<Int, WeatherData>
 
+    @Query("SELECT * FROM WeatherData WHERE cityName like :keyword ORDER BY lastUpdate COLLATE NOCASE DESC")
+    fun lookupRecordsByLastUpdate(keyword: String): DataSource.Factory<Int, WeatherData>
+
     @Query("SELECT * FROM WeatherData ORDER BY lastUpdate COLLATE NOCASE DESC LIMIT 1")
     fun latestRecord(): WeatherData?
 

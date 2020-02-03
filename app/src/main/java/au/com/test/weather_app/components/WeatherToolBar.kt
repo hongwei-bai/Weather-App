@@ -10,6 +10,7 @@ import android.widget.ImageButton
 import androidx.annotation.DrawableRes
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.core.widget.addTextChangedListener
 import au.com.test.weather_app.R
 import au.com.test.weather_app.components.WeatherToolBar.ToolbarButton.LeftButton
 import au.com.test.weather_app.components.WeatherToolBar.ToolbarButton.LeftButtonOnSearchMode
@@ -83,10 +84,22 @@ class WeatherToolBar : ConstraintLayout {
             switchSearchMode()
         }
 
+    var hint: String? = null
+        set(value) {
+            field = value
+            editTxtSearh.hint = value
+        }
+
     private var onButtonClickListener: ((event: ToolbarButton, text: String, view: View) -> Unit)? = null
+
+    private var onTextChangeListener: ((text: String, view: View) -> Unit)? = null
 
     fun setOnButtonClick(listener: ((ToolbarButton, String, View) -> Unit)) {
         this.onButtonClickListener = listener
+    }
+
+    fun setOnTextWatchListener(listener: (String, View) -> Unit) {
+        onTextChangeListener = listener
     }
 
     fun onLostFocus() {
@@ -113,6 +126,7 @@ class WeatherToolBar : ConstraintLayout {
         registerButtonClickListener()
         listenToExternalKeyboardEnterKey()
         registerTitleClickListener()
+        registerTextChangeListener()
     }
 
     fun switchSearchMode(searchOn: Boolean = isOnSearchMode()) {
@@ -186,6 +200,12 @@ class WeatherToolBar : ConstraintLayout {
                 setText("")
                 requestFocus()
             }
+        }
+    }
+
+    private fun registerTextChangeListener() {
+        editTxtSearh.addTextChangedListener {
+            onTextChangeListener?.invoke(editTxtSearh.text.toString(), editTxtSearh)
         }
     }
 

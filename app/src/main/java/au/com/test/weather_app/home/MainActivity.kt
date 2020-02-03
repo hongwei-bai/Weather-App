@@ -8,29 +8,25 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.DividerItemDecoration.VERTICAL
 import androidx.recyclerview.widget.LinearLayoutManager
-import au.com.test.weather_app.LocalProperties
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import au.com.test.weather_app.R
 import au.com.test.weather_app.components.WeatherToolBar.ToolbarButton.LeftButton
 import au.com.test.weather_app.components.WeatherToolBar.ToolbarButton.LeftButtonOnSearchMode
 import au.com.test.weather_app.components.WeatherToolBar.ToolbarButton.RightButtonOnSearchMode
 import au.com.test.weather_app.components.adapter.LocationRecordListAdapter
-import au.com.test.weather_app.data.domain.entities.WeatherData
 import au.com.test.weather_app.di.base.BaseActivity
 import au.com.test.weather_app.di.components.DaggerActivityComponent
 import au.com.test.weather_app.di.modules.ActivityModule
 import au.com.test.weather_app.locationrecord.LocationRecordActivity
-import au.com.test.weather_app.util.GlideApp
-import au.com.test.weather_app.util.TemperatureUtil
 import au.com.test.weather_app.util.show
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.layout_toolbar.*
-import kotlinx.android.synthetic.main.layout_weather_main.*
 import pub.devrel.easypermissions.EasyPermissions
 import javax.inject.Inject
-import kotlin.math.roundToInt
 
 
-class MainActivity : BaseActivity() {
+class MainActivity : BaseActivity(), SwipeRefreshLayout.OnRefreshListener {
 
     companion object {
         private const val REQUEST_CODE_LOCATION = 444
@@ -50,6 +46,7 @@ class MainActivity : BaseActivity() {
 
         initializeRecyclerView()
         initializeToolbar()
+        initializeSwipeRefreshLayout()
     }
 
     override fun onResume() {
@@ -76,6 +73,12 @@ class MainActivity : BaseActivity() {
         }
     }
 
+    override fun onRefresh() {
+        layoutSwipeRefresh.isRefreshing = true
+        viewModel.go()
+        locationRecordListAdapter.notifyDataSetChanged()
+    }
+
     override fun inject() {
         DaggerActivityComponent.builder()
             .applicationComponent(getAppComponent())
@@ -86,8 +89,10 @@ class MainActivity : BaseActivity() {
 
     private fun observeViewModelState() {
         viewModel.currentWeather.observe(this, Observer { currentWeather ->
+            layoutSwipeRefresh.isRefreshing = false
             currentWeather?.let {
-                updateCurrentWeather(currentWeather)
+                layoutCurrentLocationWeather.update(currentWeather)
+                divider.show()
                 layoutToolbar.title = currentWeather.getCityTitle() ?: getString(
                     R.string.unknown_location,
                     currentWeather.latitude,
@@ -104,6 +109,17 @@ class MainActivity : BaseActivity() {
                 notifyDataSetChanged()
             }
         })
+
+        viewModel.uiError.observe(this, Observer { exception ->
+            layoutSwipeRefresh.isRefreshing = false
+            if (exception != null) {
+                Snackbar.make(layoutSwipeRefresh, R.string.general_error, Snackbar.LENGTH_LONG).show()
+            }
+        })
+    }
+
+    private fun initializeSwipeRefreshLayout() {
+        layoutSwipeRefresh.setOnRefreshListener(this)
     }
 
     private fun initializeRecyclerView() {
@@ -111,11 +127,15 @@ class MainActivity : BaseActivity() {
         recyclerLocationRecord.layoutManager = LinearLayoutManager(this)
         recyclerLocationRecord.adapter = locationRecordListAdapter
         recyclerLocationRecord.addItemDecoration(DividerItemDecoration(this, VERTICAL))
+        locationRecordListAdapter.setOnItemClickListener { _, weatherData ->
+            viewModel.fetch(weatherData)
+        }
     }
 
     private fun initializeToolbar() {
         with(layoutToolbar) {
             isEnableSearch = true
+            hint = getString(R.string.search_hint)
             leftIcon = R.drawable.selector_edit
             leftIconOnSearchMode = R.drawable.selector_gps
             rightIconOnSearchMode = R.drawable.selector_arrow_forward
@@ -130,23 +150,6 @@ class MainActivity : BaseActivity() {
                 }
             }
         }
-    }
-
-    private fun updateCurrentWeather(data: WeatherData) {
-        val iconUrl = String.format(
-            LocalProperties.Network.API_WEATHER_ICON_URL, data.weatherIcon
-        )
-        GlideApp.with(imgIcon).load(iconUrl).into(imgIcon)
-
-        txtMain.text = data.weather
-        txtDescription.text = data.weatherDescription
-        txtTemperature.text = getString(
-            R.string.celsius,
-            TemperatureUtil.kalvinToCelsius(data.temperature).roundToInt()
-        )
-        txtHumidity.text = getString(R.string.humidity, data.humidity)
-        txtWind.text = getString(R.string.wind_speed, data.windSpeed.toString())
-        divider.show()
     }
 
     private fun hasLocationPermission(): Boolean =

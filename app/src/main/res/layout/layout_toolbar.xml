@@ -23,7 +23,6 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/spacing_m"
         android:layout_marginEnd="@dimen/spacing_m"
-        android:autofillHints="@string/search_hint"
         android:background="@drawable/bg_round_rect"
         android:inputType="text"
         android:paddingStart="@dimen/spacing_s"
@@ -32,11 +31,13 @@
         android:paddingBottom="@dimen/spacing_xs"
         android:singleLine="true"
         android:textAppearance="@style/WeatherAppTheme.Current.Subtitle"
+        android:textColorHint="@color/colorMediumGrey"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/imgBtnRight"
         app:layout_constraintStart_toEndOf="@id/imgBtnLeft"
         app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="LabelFor,UnusedAttribute" />
+        tools:ignore="LabelFor,UnusedAttribute"
+        android:autofillHints="" />
 
     <TextView
         android:id="@+id/txtTitle"

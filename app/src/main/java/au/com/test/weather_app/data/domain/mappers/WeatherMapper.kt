@@ -10,7 +10,7 @@ object WeatherMapper {
                 id = 0,
                 cityId = if (response.id > 0) response.id else null,
                 cityName = if (response.name.isNotBlank()) response.name else null,
-                countryCode = if (response.sys.country.isNotBlank()) response.sys.country else null,
+                countryCode = response.sys.country,
                 zipCode = null,
                 latitude = response.coord.lat,
                 longitude = response.coord.lon,
