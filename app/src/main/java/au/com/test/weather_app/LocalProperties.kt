@@ -1,6 +1,6 @@
 package au.com.test.weather_app
 
-import java.util.*
+import java.util.Locale
 
 object LocalProperties : CommonLocalProperties() {
     var IS_LOGGING_ENABLED = true
@@ -30,5 +30,11 @@ object LocalProperties : CommonLocalProperties() {
     object Config {
         const val LOCATION_REQUEST_MIN_TIME = 2000L
         const val LOCATION_REQUEST_MIN_DISTANCE = 5f
+    }
+
+    object Paging {
+        const val PAGE_SIZE = 30
+        const val ENABLE_PLACE_HOLDERS = true
+        const val MAX_SIZE = 200
     }
 }

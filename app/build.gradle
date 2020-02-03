@@ -21,10 +21,28 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    signingConfigs {
+        release {
+            keyAlias RELEASE_KEY_ALIAS
+            keyPassword RELEASE_KEY_PASSWORD
+            storeFile file(RELEASE_STORE_FILE)
+            storePassword RELEASE_STORE_PASSWORD
+        }
+        debug {
+            keyAlias 'uploadd'
+            keyPassword 'test456d'
+            storeFile file('../weatherapp.debug.jks')
+            storePassword 'test123d'
+        }
+    }
     buildTypes {
+        debug {
+            signingConfig signingConfigs.debug
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
 }
@@ -62,7 +80,7 @@ dependencies {
     testImplementation "io.kotlintest:kotlintest-core:$kotlinTestVersion"
     testImplementation "io.kotlintest:kotlintest-assertions:$kotlinTestVersion"
     testImplementation "io.kotlintest:kotlintest-runner-junit5:$kotlinTestVersion"
-    testImplementation("com.nhaarman:mockito-kotlin:1.4.0")
+    testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.1.0"
     testImplementation "android.arch.core:core-testing:1.1.1"
 
     //Dagger 2

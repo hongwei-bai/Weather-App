@@ -21,7 +21,7 @@ class MainViewModel @Inject constructor(
     companion object {
         private val TAG = MainViewModel::class.java.simpleName
 
-        private const val REGEX_COUNTRY_CODE = "[ ,]{1}\\w{2}"
+        private const val REGEX_COUNTRY_CODE = "[ ,]{1}\\w{2}$"
     }
 
     val currentWeather: MutableLiveData<WeatherData> = MutableLiveData()
@@ -49,11 +49,6 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    private fun emitNullCurrentWeatherLiveData(): WeatherData? {
-        uiScope.launch { currentWeather.value = null }
-        return null
-    }
-
     fun fetch(input: String) {
         logger.i(TAG, "fetch(): input string: $input")
         val countryCode: String? = getCountryCode(input)
@@ -72,8 +67,7 @@ class MainViewModel @Inject constructor(
                             "fetch(): queryWeatherByZipCode zip: $it, countryCode: $countryCode"
                         )
                         queryWeatherByZipCode(it, countryCode)
-                    }
-                        ?: queryWeatherByCityName(keyWord, countryCode))
+                    } ?: queryWeatherByCityName(keyWord, countryCode))
                 }
             }?.let {
                 logger.i(TAG, "fetch(): new current weather: $it")
@@ -92,6 +86,11 @@ class MainViewModel @Inject constructor(
                 updateLocationRecords(it)
             }
         }
+    }
+
+    private fun emitNullCurrentWeatherLiveData(): WeatherData? {
+        uiScope.launch { currentWeather.value = null }
+        return null
     }
 
     private fun updateLocationRecords(data: WeatherData) {

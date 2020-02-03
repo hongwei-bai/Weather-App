@@ -39,5 +39,6 @@ hs_err_pid*
 .cxx
 
 # Signature
+gradle.properties
 *.jks
 *.pepk

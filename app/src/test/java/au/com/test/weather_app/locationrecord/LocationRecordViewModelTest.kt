@@ -7,7 +7,7 @@ import au.com.test.weather_app.test.TestContextProvider
 import au.com.test.weather_app.test.TestCoroutineRule
 import au.com.test.weather_app.test.factory.DomainWeatherDataFactory
 import au.com.test.weather_app.util.Logger
-import com.nhaarman.mockito_kotlin.*
+import com.nhaarman.mockitokotlin2.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.After
 import org.junit.Before

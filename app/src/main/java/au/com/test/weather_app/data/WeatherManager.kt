@@ -5,6 +5,9 @@ import androidx.lifecycle.LiveData
 import androidx.paging.Config
 import androidx.paging.PagedList
 import androidx.paging.toLiveData
+import au.com.test.weather_app.LocalProperties.Paging.ENABLE_PLACE_HOLDERS
+import au.com.test.weather_app.LocalProperties.Paging.MAX_SIZE
+import au.com.test.weather_app.LocalProperties.Paging.PAGE_SIZE
 import au.com.test.weather_app.data.domain.entities.WeatherData
 import au.com.test.weather_app.data.domain.mappers.WeatherMapper
 import au.com.test.weather_app.data.source.cache.Cache
@@ -48,13 +51,7 @@ class WeatherManager @Inject constructor(
         WeatherMapper.mapToDomainEntities(openWeatherMapDataSource.getWeatherByZipCode(zipCode, countryCode))
 
     override fun getAllLocationRecordsSortByLatestUpdate(): LiveData<PagedList<WeatherData>> =
-        weatherDao.allRecordByLastUpdate().toLiveData(
-            Config(
-                pageSize = 30,
-                enablePlaceholders = true,
-                maxSize = 200
-            )
-        )
+        weatherDao.allRecordByLastUpdate().toLiveData(Config(PAGE_SIZE, MAX_SIZE, ENABLE_PLACE_HOLDERS))
 
     override fun getLastLocationRecord(): WeatherData? = weatherDao.latestRecord()
 
