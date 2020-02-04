@@ -40,8 +40,13 @@ hs_err_pid*
 
 # Signature
 gradle.properties
-*.jks
+keystore/
+#*.jks
 *.pepk
+
+# buildings
+app/release/
+app/debug/
 
 # local city list
 #city.list.json
