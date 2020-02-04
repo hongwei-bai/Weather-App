@@ -78,7 +78,6 @@ class MainViewModel @Inject constructor(
     }
 
     fun fetch(input: String) {
-        publishViewStateLoading()
         logger.i(TAG, "fetch(): input string: $input")
         val info = parseInput(input)
         logger.i(TAG, "fetch(): parsed keyWord: ${info.first}, countryCode: ${info.second}")

@@ -5,11 +5,10 @@ import androidx.lifecycle.Observer
 import au.com.test.weather_app.LocalProperties
 import au.com.test.weather_app.data.CityRepository
 import au.com.test.weather_app.data.WeatherRepository
-import au.com.test.weather_app.data.domain.entities.WeatherData
-import au.com.test.weather_app.data.source.local.owm.models.City
 import au.com.test.weather_app.test.TestContextProvider
 import au.com.test.weather_app.test.TestCoroutineRule
 import au.com.test.weather_app.test.factory.DomainWeatherDataFactory
+import au.com.test.weather_app.test.testObserver
 import au.com.test.weather_app.uicomponents.model.Default
 import au.com.test.weather_app.uicomponents.model.Loading
 import au.com.test.weather_app.uicomponents.model.Success
@@ -25,7 +24,6 @@ import com.nhaarman.mockitokotlin2.stub
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
-import io.kotlintest.matchers.types.shouldBeInstanceOf
 import io.kotlintest.shouldBe
 import io.kotlintest.tables.forAll
 import io.kotlintest.tables.headers
@@ -67,10 +65,7 @@ class MainViewModelTest {
             cityRepository,
             logger,
             TestContextProvider()
-        ).apply {
-            currentWeatherState.observeForever(viewStateObserver)
-            searchSuggestions.observeForever(cityObserver)
-        }
+        )
 
         clearInvocations(weatherRepository)
     }
@@ -81,16 +76,17 @@ class MainViewModelTest {
     }
 
     @Test
-    fun `on go() - no location record in db - emit a null current weather to view so that view could show search bar`() {
+    fun `on go() - no location record in db - emit a default view state to view so that view could show search bar`() {
         testCoroutineRule.runBlockingTest {
             // Given
             whenever(weatherRepository.getLastLocationRecord()).thenReturn(null)
+            val testObserver = viewModel.currentWeatherState.testObserver()
 
             // When
             viewModel.go()
 
             // Then
-            verify(viewStateObserver).onChanged(Default)
+            testObserver.observedValues.first() shouldBe Default
         }
     }
 
@@ -101,13 +97,15 @@ class MainViewModelTest {
             val sydneySnow = DomainWeatherDataFactory.createWeatherDataSydneySnow()
             whenever(weatherRepository.getLastLocationRecord()).thenReturn(DomainWeatherDataFactory.createWeatherData())
             weatherRepository.stub { onBlocking { queryWeatherById(2147714L) }.doReturn(sydneySnow) }
+            val testObserver = viewModel.currentWeatherState.testObserver()
 
             // When
             viewModel.go()
 
             // Then
-            verify(viewStateObserver).onChanged(Loading)
-            verify(viewStateObserver).onChanged(Success(sydneySnow))
+            testObserver.observedValues.first() shouldBe Loading
+            (testObserver.observedValues[1] is Success<*>) shouldBe true
+            (testObserver.observedValues[1] as Success<*>).data shouldBe sydneySnow
             verify(weatherRepository, never()).queryWeatherByCoordinate(any(), any())
         }
     }
@@ -119,18 +117,16 @@ class MainViewModelTest {
             val sydneySnow = DomainWeatherDataFactory.createWeatherDataSydneySnowLastWeek()
             whenever(weatherRepository.getLastLocationRecord()).thenReturn(DomainWeatherDataFactory.createWeatherDataSydneyCleared())
             weatherRepository.stub { onBlocking { queryWeatherById(2147714L) }.doReturn(sydneySnow) }
-            weatherRepository.stub {
-                onBlocking { getLocationRecordByCityId(2147714L) }.doReturn(
-                    sydneySnow
-                )
-            }
+            weatherRepository.stub { onBlocking { getLocationRecordByCityId(2147714L) }.doReturn(sydneySnow) }
+            val testObserver = viewModel.currentWeatherState.testObserver()
 
             // When
             viewModel.go()
 
             // Then
-            verify(viewStateObserver).onChanged(Loading)
-            verify(viewStateObserver).onChanged(Success(sydneySnow))
+            testObserver.observedValues.first() shouldBe Loading
+            (testObserver.observedValues[1] is Success<*>) shouldBe true
+            (testObserver.observedValues[1] as Success<*>).data shouldBe sydneySnow
             verify(weatherRepository, never()).queryWeatherByCoordinate(any(), any())
             verify(weatherRepository, never()).getLocationRecordByLocation(any(), any())
             verify(weatherRepository, times(1)).updateLocationRecord(eq(sydneySnow))
@@ -144,18 +140,16 @@ class MainViewModelTest {
             // Given
             val surryHillsRain = DomainWeatherDataFactory.createWeatherDataSurryHillsRain()
             whenever(weatherRepository.getLastLocationRecord()).thenReturn(DomainWeatherDataFactory.createWeatherDataSurryHillsClearedLastWeek())
-            weatherRepository.stub {
-                onBlocking { queryWeatherByZipCode(2010, "AU") }.doReturn(
-                    surryHillsRain
-                )
-            }
+            weatherRepository.stub { onBlocking { queryWeatherByZipCode(2010, "AU") }.doReturn(surryHillsRain) }
+            val testObserver = viewModel.currentWeatherState.testObserver()
 
             // When
             viewModel.go()
 
             // Then
-            verify(viewStateObserver).onChanged(Loading)
-            verify(viewStateObserver).onChanged(Success(surryHillsRain))
+            testObserver.observedValues.first() shouldBe Loading
+            (testObserver.observedValues[1] is Success<*>) shouldBe true
+            (testObserver.observedValues[1] as Success<*>).data shouldBe surryHillsRain
             verify(weatherRepository, never()).queryWeatherById(any())
         }
     }
@@ -166,23 +160,17 @@ class MainViewModelTest {
             // Given
             val surryHillsRain = DomainWeatherDataFactory.createWeatherDataSurryHillsRain()
             whenever(weatherRepository.getLastLocationRecord()).thenReturn(DomainWeatherDataFactory.createWeatherDataSurryHillsClearedLastWeek())
-            weatherRepository.stub {
-                onBlocking { queryWeatherByZipCode(2010, "AU") }.doReturn(
-                    surryHillsRain
-                )
-            }
-            weatherRepository.stub {
-                onBlocking { getLocationRecordByZipCode(2010, "AU") }.doReturn(
-                    surryHillsRain
-                )
-            }
+            weatherRepository.stub { onBlocking { queryWeatherByZipCode(2010, "AU") }.doReturn(surryHillsRain) }
+            weatherRepository.stub { onBlocking { getLocationRecordByZipCode(2010, "AU") }.doReturn(surryHillsRain) }
+            val testObserver = viewModel.currentWeatherState.testObserver()
 
             // When
             viewModel.go()
 
             // Then
-            verify(viewStateObserver).onChanged(Loading)
-            verify(viewStateObserver).onChanged(Success(surryHillsRain))
+            testObserver.observedValues.first() shouldBe Loading
+            (testObserver.observedValues[1] is Success<*>) shouldBe true
+            (testObserver.observedValues[1] as Success<*>).data shouldBe surryHillsRain
             verify(weatherRepository, never()).queryWeatherById(any())
             verify(weatherRepository, never()).getLocationRecordByCityId(any())
             verify(weatherRepository, times(1)).updateLocationRecord(eq(surryHillsRain))
@@ -196,21 +184,16 @@ class MainViewModelTest {
             // Given
             val nowhereRain = DomainWeatherDataFactory.createWeatherDataNowhereRain()
             whenever(weatherRepository.getLastLocationRecord()).thenReturn(DomainWeatherDataFactory.createWeatherDataNowhereCleared())
-            weatherRepository.stub {
-                onBlocking {
-                    queryWeatherByCoordinate(
-                        -83.28,
-                        105.95
-                    )
-                }.doReturn(nowhereRain)
-            }
+            weatherRepository.stub { onBlocking { queryWeatherByCoordinate(-83.28, 105.95) }.doReturn(nowhereRain) }
+            val testObserver = viewModel.currentWeatherState.testObserver()
 
             // When
             viewModel.go()
 
             // Then
-            verify(viewStateObserver).onChanged(Loading)
-            verify(viewStateObserver).onChanged(Success(nowhereRain))
+            testObserver.observedValues.first() shouldBe Loading
+            (testObserver.observedValues[1] is Success<*>) shouldBe true
+            (testObserver.observedValues[1] as Success<*>).data shouldBe nowhereRain
             verify(weatherRepository, never()).queryWeatherById(any())
         }
     }
@@ -221,29 +204,17 @@ class MainViewModelTest {
             // Given
             val nowhereRain = DomainWeatherDataFactory.createWeatherDataNowhereRain()
             whenever(weatherRepository.getLastLocationRecord()).thenReturn(DomainWeatherDataFactory.createWeatherDataNowhereCleared())
-            weatherRepository.stub {
-                onBlocking {
-                    queryWeatherByCoordinate(
-                        -83.28,
-                        105.95
-                    )
-                }.doReturn(nowhereRain)
-            }
-            weatherRepository.stub {
-                onBlocking {
-                    getLocationRecordByLocation(
-                        -83.28,
-                        105.95
-                    )
-                }.doReturn(nowhereRain)
-            }
+            weatherRepository.stub { onBlocking { queryWeatherByCoordinate(-83.28, 105.95) }.doReturn(nowhereRain) }
+            weatherRepository.stub { onBlocking { getLocationRecordByLocation(-83.28, 105.95) }.doReturn(nowhereRain) }
+            val testObserver = viewModel.currentWeatherState.testObserver()
 
             // When
             viewModel.go()
 
             // Then
-            verify(viewStateObserver).onChanged(Loading)
-            verify(viewStateObserver).onChanged(Success(nowhereRain))
+            testObserver.observedValues.first() shouldBe Loading
+            (testObserver.observedValues[1] is Success<*>) shouldBe true
+            (testObserver.observedValues[1] as Success<*>).data shouldBe nowhereRain
             verify(weatherRepository, never()).queryWeatherById(any())
             verify(weatherRepository, never()).getLocationRecordByCityId(any())
             verify(weatherRepository, times(1)).updateLocationRecord(eq(nowhereRain))
@@ -256,24 +227,17 @@ class MainViewModelTest {
         testCoroutineRule.runBlockingTest {
             // Given
             val nowhereRain = DomainWeatherDataFactory.createWeatherDataNowhereRain()
-            whenever(weatherRepository.queryWeatherByCoordinate(-83.28, 105.95)).thenReturn(
-                DomainWeatherDataFactory.createWeatherDataNowhereRainLastWeek()
-            )
-            weatherRepository.stub {
-                onBlocking {
-                    queryWeatherByCoordinate(
-                        -83.28,
-                        105.95
-                    )
-                }.doReturn(nowhereRain)
-            }
+            whenever(weatherRepository.queryWeatherByCoordinate(-83.28, 105.95)).thenReturn(DomainWeatherDataFactory.createWeatherDataNowhereRainLastWeek())
+            weatherRepository.stub { onBlocking { queryWeatherByCoordinate(-83.28, 105.95) }.doReturn(nowhereRain) }
+            val testObserver = viewModel.currentWeatherState.testObserver()
 
             // When
             viewModel.fetch(-83.28, 105.95)
 
             // Then
-            verify(viewStateObserver).onChanged(Loading)
-            verify(viewStateObserver).onChanged(Success(nowhereRain))
+            testObserver.observedValues.first() shouldBe Loading
+            (testObserver.observedValues[1] is Success<*>) shouldBe true
+            (testObserver.observedValues[1] as Success<*>).data shouldBe nowhereRain
             verify(weatherRepository, never()).queryWeatherById(any())
         }
     }
@@ -283,25 +247,17 @@ class MainViewModelTest {
         testCoroutineRule.runBlockingTest {
             // Given
             val nowhereRain = DomainWeatherDataFactory.createWeatherDataNowhereRain()
-
-            weatherRepository.stub {
-                onBlocking {
-                    queryWeatherByCoordinate(
-                        -83.28,
-                        105.95
-                    )
-                }.doReturn(nowhereRain)
-            }
-            whenever(weatherRepository.getLocationRecordByLocation(-83.28, 105.95)).thenReturn(
-                DomainWeatherDataFactory.createWeatherDataNowhereRainLastWeek()
-            )
+            weatherRepository.stub { onBlocking { queryWeatherByCoordinate(-83.28, 105.95) }.doReturn(nowhereRain) }
+            whenever(weatherRepository.getLocationRecordByLocation(-83.28, 105.95)).thenReturn(DomainWeatherDataFactory.createWeatherDataNowhereRainLastWeek())
+            val testObserver = viewModel.currentWeatherState.testObserver()
 
             // When
             viewModel.fetch(-83.28, 105.95)
 
             // Then
-            verify(viewStateObserver).onChanged(Loading)
-            verify(viewStateObserver).onChanged(Success(nowhereRain))
+            testObserver.observedValues.first() shouldBe Loading
+            (testObserver.observedValues[1] is Success<*>) shouldBe true
+            (testObserver.observedValues[1] as Success<*>).data shouldBe nowhereRain
             verify(weatherRepository, times(1)).updateLocationRecord(eq(nowhereRain))
             verify(weatherRepository, never()).insertLocationRecord(any())
         }
@@ -312,23 +268,17 @@ class MainViewModelTest {
         testCoroutineRule.runBlockingTest {
             // Given
             val nowhereRain = DomainWeatherDataFactory.createWeatherDataNowhereRain()
-
-            weatherRepository.stub {
-                onBlocking {
-                    queryWeatherByCoordinate(
-                        -83.28,
-                        105.95
-                    )
-                }.doReturn(nowhereRain)
-            }
+            weatherRepository.stub { onBlocking { queryWeatherByCoordinate(-83.28, 105.95) }.doReturn(nowhereRain) }
             whenever(weatherRepository.getLocationRecordByLocation(-83.28, 105.95)).thenReturn(null)
+            val testObserver = viewModel.currentWeatherState.testObserver()
 
             // When
             viewModel.fetch(-83.28, 105.95)
 
             // Then
-            verify(viewStateObserver).onChanged(Loading)
-            verify(viewStateObserver).onChanged(Success(nowhereRain))
+            testObserver.observedValues.first() shouldBe Loading
+            (testObserver.observedValues[1] is Success<*>) shouldBe true
+            (testObserver.observedValues[1] as Success<*>).data shouldBe nowhereRain
             verify(weatherRepository, times(1)).insertLocationRecord(eq(nowhereRain))
             verify(weatherRepository, never()).updateLocationRecord(any())
         }
@@ -339,22 +289,17 @@ class MainViewModelTest {
         testCoroutineRule.runBlockingTest {
             // Given
             val sydneyRain = DomainWeatherDataFactory.createWeatherDataNowhereRain()
-
-            weatherRepository.stub {
-                onBlocking { queryWeatherByCityName("Sydney", "AU") }.doReturn(
-                    sydneyRain
-                )
-            }
-            whenever(weatherRepository.getLocationRecordByCityId(2147714L)).thenReturn(
-                DomainWeatherDataFactory.createWeatherDataSydneyClearedLastWeek()
-            )
+            weatherRepository.stub { onBlocking { queryWeatherByCityName("Sydney", "AU") }.doReturn(sydneyRain) }
+            whenever(weatherRepository.getLocationRecordByCityId(2147714L)).thenReturn(DomainWeatherDataFactory.createWeatherDataSydneyClearedLastWeek())
+            val testObserver = viewModel.currentWeatherState.testObserver()
 
             // When
             viewModel.fetch("Sydney, AU")
 
             // Then
-            verify(viewStateObserver).onChanged(Loading)
-            verify(viewStateObserver).onChanged(Success(sydneyRain))
+            testObserver.observedValues.first() shouldBe Loading
+            (testObserver.observedValues[1] is Success<*>) shouldBe true
+            (testObserver.observedValues[1] as Success<*>).data shouldBe sydneyRain
         }
     }
 
@@ -363,22 +308,17 @@ class MainViewModelTest {
         testCoroutineRule.runBlockingTest {
             // Given
             val sydneyRain = DomainWeatherDataFactory.createWeatherDataSydneyRain()
-
-            weatherRepository.stub {
-                onBlocking { queryWeatherByCityName("Sydney", "AU") }.doReturn(
-                    sydneyRain
-                )
-            }
-            whenever(weatherRepository.getLocationRecordByCityId(2147714L)).thenReturn(
-                DomainWeatherDataFactory.createWeatherDataSydneyClearedLastWeek()
-            )
+            weatherRepository.stub { onBlocking { queryWeatherByCityName("Sydney", "AU") }.doReturn(sydneyRain) }
+            whenever(weatherRepository.getLocationRecordByCityId(2147714L)).thenReturn(DomainWeatherDataFactory.createWeatherDataSydneyClearedLastWeek())
+            val testObserver = viewModel.currentWeatherState.testObserver()
 
             // When
             viewModel.fetch("Sydney, AU")
 
             // Then
-            verify(viewStateObserver).onChanged(Loading)
-            verify(viewStateObserver).onChanged(Success(sydneyRain))
+            testObserver.observedValues.first() shouldBe Loading
+            (testObserver.observedValues[1] is Success<*>) shouldBe true
+            (testObserver.observedValues[1] as Success<*>).data shouldBe sydneyRain
             verify(weatherRepository, times(1)).updateLocationRecord(eq(sydneyRain))
             verify(weatherRepository, never()).insertLocationRecord(any())
         }
@@ -389,20 +329,17 @@ class MainViewModelTest {
         testCoroutineRule.runBlockingTest {
             // Given
             val sydneyRain = DomainWeatherDataFactory.createWeatherDataNowhereRain()
-
-            weatherRepository.stub {
-                onBlocking { queryWeatherByCityName("Sydney", "AU") }.doReturn(
-                    sydneyRain
-                )
-            }
+            weatherRepository.stub { onBlocking { queryWeatherByCityName("Sydney", "AU") }.doReturn(sydneyRain) }
             whenever(weatherRepository.getLocationRecordByCityId(2147714L)).thenReturn(null)
+            val testObserver = viewModel.currentWeatherState.testObserver()
 
             // When
             viewModel.fetch("Sydney, AU")
 
             // Then
-            verify(viewStateObserver).onChanged(Loading)
-            verify(viewStateObserver).onChanged(Success(sydneyRain))
+            testObserver.observedValues.first() shouldBe Loading
+            (testObserver.observedValues[1] is Success<*>) shouldBe true
+            (testObserver.observedValues[1] as Success<*>).data shouldBe sydneyRain
             verify(weatherRepository, never()).updateLocationRecord(any())
             verify(weatherRepository, times(1)).insertLocationRecord(eq(sydneyRain))
         }
@@ -413,22 +350,17 @@ class MainViewModelTest {
         testCoroutineRule.runBlockingTest {
             // Given
             val surryHillsRain = DomainWeatherDataFactory.createWeatherDataNowhereRain()
-
-            weatherRepository.stub {
-                onBlocking { queryWeatherByZipCode(2010, "AU") }.doReturn(
-                    surryHillsRain
-                )
-            }
-            whenever(weatherRepository.getLocationRecordByZipCode(2010, "AU")).thenReturn(
-                DomainWeatherDataFactory.createWeatherDataSurryHillsClearedLastWeek()
-            )
+            weatherRepository.stub { onBlocking { queryWeatherByZipCode(2010, "AU") }.doReturn(surryHillsRain) }
+            whenever(weatherRepository.getLocationRecordByZipCode(2010, "AU")).thenReturn(DomainWeatherDataFactory.createWeatherDataSurryHillsClearedLastWeek())
+            val testObserver = viewModel.currentWeatherState.testObserver()
 
             // When
             viewModel.fetch("2010, AU")
 
             // Then
-            verify(viewStateObserver).onChanged(Loading)
-            verify(viewStateObserver).onChanged(Success(surryHillsRain))
+            testObserver.observedValues.first() shouldBe Loading
+            (testObserver.observedValues[1] is Success<*>) shouldBe true
+            (testObserver.observedValues[1] as Success<*>).data shouldBe surryHillsRain
         }
     }
 
@@ -444,11 +376,7 @@ class MainViewModelTest {
             row("city name and country code divided by space and comma", "Los Angles, US", "US"),
             row("city name with space and country code divided by space", "Los Angles US", "US"),
             row("city name with space and country code divided by comma", "Los Angles,US", "US"),
-            row(
-                "city name with space and country code divided by space and comma",
-                "Los Angles, US",
-                "US"
-            )
+            row("city name with space and country code divided by space and comma", "Los Angles, US", "US")
         )
 
         forAll(testData) { testName: String, input: String, expectedResult: String? ->
