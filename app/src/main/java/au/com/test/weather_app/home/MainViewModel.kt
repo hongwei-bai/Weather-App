@@ -8,14 +8,19 @@ import au.com.test.weather_app.data.CityRepository
 import au.com.test.weather_app.data.WeatherRepository
 import au.com.test.weather_app.data.domain.entities.CityData
 import au.com.test.weather_app.data.domain.entities.WeatherData
-import au.com.test.weather_app.data.domain.entities.WeatherData.QueryGroup.*
+import au.com.test.weather_app.data.domain.entities.WeatherData.QueryGroup.CityId
+import au.com.test.weather_app.data.domain.entities.WeatherData.QueryGroup.Corrdinate
+import au.com.test.weather_app.data.domain.entities.WeatherData.QueryGroup.ZipCode
 import au.com.test.weather_app.di.base.BaseViewModel
-import au.com.test.weather_app.uicomponents.model.*
+import au.com.test.weather_app.uicomponents.model.Default
+import au.com.test.weather_app.uicomponents.model.Error
+import au.com.test.weather_app.uicomponents.model.Loading
+import au.com.test.weather_app.uicomponents.model.Success
+import au.com.test.weather_app.uicomponents.model.ViewState
 import au.com.test.weather_app.util.CoroutineContextProvider
 import au.com.test.weather_app.util.Logger
 import au.com.test.weather_app.util.PerformanceUtil
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.regex.Pattern
@@ -96,12 +101,14 @@ class MainViewModel @Inject constructor(
         publishViewStateLoading()
         uiScope.launch(handler) {
             withContext(contextProvider.IO) {
-                delay(5000)
                 val queryGroup = data.getQueryGroup()
                 logger.i(TAG, "fetch(WeatherData): last location record: ${data.cityName}, zip: ${data.zipCode}, location: ${data.latitude}, ${data.longitude}, queryGroup: $queryGroup")
                 when (queryGroup) {
                     CityId -> weatherRepository.queryWeatherById(data.cityId)
-                    ZipCode -> weatherRepository.queryWeatherByZipCode(data.zipCode, data.countryCode)
+                    ZipCode -> weatherRepository.queryWeatherByZipCode(
+                        data.zipCode,
+                        data.countryCode
+                    )
                     Corrdinate -> {
                         weatherRepository.queryWeatherByCoordinate(data.latitude, data.longitude)
                     }
@@ -120,10 +127,7 @@ class MainViewModel @Inject constructor(
             withContext(contextProvider.IO) {
                 with(weatherRepository) {
                     (keyWord.toLongOrNull()?.let {
-                        logger.i(
-                            TAG,
-                            "fetch(): queryWeatherByZipCode zip: $it, countryCode: $countryCode"
-                        )
+                        logger.i(TAG, "fetch(): queryWeatherByZipCode zip: $it, countryCode: $countryCode")
                         zipCode = it
                         queryWeatherByZipCode(it, countryCode)
                     } ?: queryWeatherByCityName(keyWord, countryCode))
