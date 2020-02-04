@@ -112,7 +112,11 @@ class MainViewModelTest {
             val sydneySnow = DomainWeatherDataFactory.createWeatherDataSydneySnowLastWeek()
             whenever(weatherRepository.getLastLocationRecord()).thenReturn(DomainWeatherDataFactory.createWeatherDataSydneyCleared())
             weatherRepository.stub { onBlocking { queryWeatherById(2147714L) }.doReturn(sydneySnow) }
-            weatherRepository.stub { onBlocking { getLocationRecordByCityId(2147714L) }.doReturn(sydneySnow) }
+            weatherRepository.stub {
+                onBlocking { getLocationRecordByCityId(2147714L) }.doReturn(
+                    sydneySnow
+                )
+            }
 
             // When
             viewModel.go()
@@ -132,7 +136,11 @@ class MainViewModelTest {
             // Given
             val surryHillsRain = DomainWeatherDataFactory.createWeatherDataSurryHillsRain()
             whenever(weatherRepository.getLastLocationRecord()).thenReturn(DomainWeatherDataFactory.createWeatherDataSurryHillsClearedLastWeek())
-            weatherRepository.stub { onBlocking { queryWeatherByZipCode(2010, "AU") }.doReturn(surryHillsRain) }
+            weatherRepository.stub {
+                onBlocking { queryWeatherByZipCode(2010, "AU") }.doReturn(
+                    surryHillsRain
+                )
+            }
 
             // When
             viewModel.go()
@@ -149,8 +157,16 @@ class MainViewModelTest {
             // Given
             val surryHillsRain = DomainWeatherDataFactory.createWeatherDataSurryHillsRain()
             whenever(weatherRepository.getLastLocationRecord()).thenReturn(DomainWeatherDataFactory.createWeatherDataSurryHillsClearedLastWeek())
-            weatherRepository.stub { onBlocking { queryWeatherByZipCode(2010, "AU") }.doReturn(surryHillsRain) }
-            weatherRepository.stub { onBlocking { getLocationRecordByZipCode(2010, "AU") }.doReturn(surryHillsRain) }
+            weatherRepository.stub {
+                onBlocking { queryWeatherByZipCode(2010, "AU") }.doReturn(
+                    surryHillsRain
+                )
+            }
+            weatherRepository.stub {
+                onBlocking { getLocationRecordByZipCode(2010, "AU") }.doReturn(
+                    surryHillsRain
+                )
+            }
 
             // When
             viewModel.go()
@@ -170,7 +186,14 @@ class MainViewModelTest {
             // Given
             val nowhereRain = DomainWeatherDataFactory.createWeatherDataNowhereRain()
             whenever(weatherRepository.getLastLocationRecord()).thenReturn(DomainWeatherDataFactory.createWeatherDataNowhereCleared())
-            weatherRepository.stub { onBlocking { queryWeatherByCoordinate(-83.28, 105.95) }.doReturn(nowhereRain) }
+            weatherRepository.stub {
+                onBlocking {
+                    queryWeatherByCoordinate(
+                        -83.28,
+                        105.95
+                    )
+                }.doReturn(nowhereRain)
+            }
 
             // When
             viewModel.go()
@@ -187,8 +210,22 @@ class MainViewModelTest {
             // Given
             val nowhereRain = DomainWeatherDataFactory.createWeatherDataNowhereRain()
             whenever(weatherRepository.getLastLocationRecord()).thenReturn(DomainWeatherDataFactory.createWeatherDataNowhereCleared())
-            weatherRepository.stub { onBlocking { queryWeatherByCoordinate(-83.28, 105.95) }.doReturn(nowhereRain) }
-            weatherRepository.stub { onBlocking { getLocationRecordByLocation(-83.28, 105.95) }.doReturn(nowhereRain) }
+            weatherRepository.stub {
+                onBlocking {
+                    queryWeatherByCoordinate(
+                        -83.28,
+                        105.95
+                    )
+                }.doReturn(nowhereRain)
+            }
+            weatherRepository.stub {
+                onBlocking {
+                    getLocationRecordByLocation(
+                        -83.28,
+                        105.95
+                    )
+                }.doReturn(nowhereRain)
+            }
 
             // When
             viewModel.go()
@@ -207,8 +244,17 @@ class MainViewModelTest {
         testCoroutineRule.runBlockingTest {
             // Given
             val nowhereRain = DomainWeatherDataFactory.createWeatherDataNowhereRain()
-            whenever(weatherRepository.queryWeatherByCoordinate(-83.28, 105.95)).thenReturn(DomainWeatherDataFactory.createWeatherDataNowhereRainLastWeek())
-            weatherRepository.stub { onBlocking { queryWeatherByCoordinate(-83.28, 105.95) }.doReturn(nowhereRain) }
+            whenever(weatherRepository.queryWeatherByCoordinate(-83.28, 105.95)).thenReturn(
+                DomainWeatherDataFactory.createWeatherDataNowhereRainLastWeek()
+            )
+            weatherRepository.stub {
+                onBlocking {
+                    queryWeatherByCoordinate(
+                        -83.28,
+                        105.95
+                    )
+                }.doReturn(nowhereRain)
+            }
 
             // When
             viewModel.fetch(-83.28, 105.95)
@@ -225,8 +271,17 @@ class MainViewModelTest {
             // Given
             val nowhereRain = DomainWeatherDataFactory.createWeatherDataNowhereRain()
 
-            weatherRepository.stub { onBlocking { queryWeatherByCoordinate(-83.28, 105.95) }.doReturn(nowhereRain) }
-            whenever(weatherRepository.getLocationRecordByLocation(-83.28, 105.95)).thenReturn(DomainWeatherDataFactory.createWeatherDataNowhereRainLastWeek())
+            weatherRepository.stub {
+                onBlocking {
+                    queryWeatherByCoordinate(
+                        -83.28,
+                        105.95
+                    )
+                }.doReturn(nowhereRain)
+            }
+            whenever(weatherRepository.getLocationRecordByLocation(-83.28, 105.95)).thenReturn(
+                DomainWeatherDataFactory.createWeatherDataNowhereRainLastWeek()
+            )
 
             // When
             viewModel.fetch(-83.28, 105.95)
@@ -244,7 +299,14 @@ class MainViewModelTest {
             // Given
             val nowhereRain = DomainWeatherDataFactory.createWeatherDataNowhereRain()
 
-            weatherRepository.stub { onBlocking { queryWeatherByCoordinate(-83.28, 105.95) }.doReturn(nowhereRain) }
+            weatherRepository.stub {
+                onBlocking {
+                    queryWeatherByCoordinate(
+                        -83.28,
+                        105.95
+                    )
+                }.doReturn(nowhereRain)
+            }
             whenever(weatherRepository.getLocationRecordByLocation(-83.28, 105.95)).thenReturn(null)
 
             // When
@@ -263,8 +325,14 @@ class MainViewModelTest {
             // Given
             val sydneyRain = DomainWeatherDataFactory.createWeatherDataNowhereRain()
 
-            weatherRepository.stub { onBlocking { queryWeatherByCityName("Sydney", "AU") }.doReturn(sydneyRain) }
-            whenever(weatherRepository.getLocationRecordByCityId(2147714L)).thenReturn(DomainWeatherDataFactory.createWeatherDataSydneyClearedLastWeek())
+            weatherRepository.stub {
+                onBlocking { queryWeatherByCityName("Sydney", "AU") }.doReturn(
+                    sydneyRain
+                )
+            }
+            whenever(weatherRepository.getLocationRecordByCityId(2147714L)).thenReturn(
+                DomainWeatherDataFactory.createWeatherDataSydneyClearedLastWeek()
+            )
 
             // When
             viewModel.fetch("Sydney, AU")
@@ -280,8 +348,14 @@ class MainViewModelTest {
             // Given
             val sydneyRain = DomainWeatherDataFactory.createWeatherDataSydneyRain()
 
-            weatherRepository.stub { onBlocking { queryWeatherByCityName("Sydney", "AU") }.doReturn(sydneyRain) }
-            whenever(weatherRepository.getLocationRecordByCityId(2147714L)).thenReturn(DomainWeatherDataFactory.createWeatherDataSydneyClearedLastWeek())
+            weatherRepository.stub {
+                onBlocking { queryWeatherByCityName("Sydney", "AU") }.doReturn(
+                    sydneyRain
+                )
+            }
+            whenever(weatherRepository.getLocationRecordByCityId(2147714L)).thenReturn(
+                DomainWeatherDataFactory.createWeatherDataSydneyClearedLastWeek()
+            )
 
             // When
             viewModel.fetch("Sydney, AU")
@@ -299,7 +373,11 @@ class MainViewModelTest {
             // Given
             val sydneyRain = DomainWeatherDataFactory.createWeatherDataNowhereRain()
 
-            weatherRepository.stub { onBlocking { queryWeatherByCityName("Sydney", "AU") }.doReturn(sydneyRain) }
+            weatherRepository.stub {
+                onBlocking { queryWeatherByCityName("Sydney", "AU") }.doReturn(
+                    sydneyRain
+                )
+            }
             whenever(weatherRepository.getLocationRecordByCityId(2147714L)).thenReturn(null)
 
             // When
@@ -318,8 +396,14 @@ class MainViewModelTest {
             // Given
             val surryHillsRain = DomainWeatherDataFactory.createWeatherDataNowhereRain()
 
-            weatherRepository.stub { onBlocking { queryWeatherByZipCode(2010, "AU") }.doReturn(surryHillsRain) }
-            whenever(weatherRepository.getLocationRecordByZipCode(2010, "AU")).thenReturn(DomainWeatherDataFactory.createWeatherDataSurryHillsClearedLastWeek())
+            weatherRepository.stub {
+                onBlocking { queryWeatherByZipCode(2010, "AU") }.doReturn(
+                    surryHillsRain
+                )
+            }
+            whenever(weatherRepository.getLocationRecordByZipCode(2010, "AU")).thenReturn(
+                DomainWeatherDataFactory.createWeatherDataSurryHillsClearedLastWeek()
+            )
 
             // When
             viewModel.fetch("2010, AU")
@@ -341,7 +425,11 @@ class MainViewModelTest {
             row("city name and country code divided by space and comma", "Los Angles, US", "US"),
             row("city name with space and country code divided by space", "Los Angles US", "US"),
             row("city name with space and country code divided by comma", "Los Angles,US", "US"),
-            row("city name with space and country code divided by space and comma", "Los Angles, US", "US")
+            row(
+                "city name with space and country code divided by space and comma",
+                "Los Angles, US",
+                "US"
+            )
         )
 
         forAll(testData) { testName: String, input: String, expectedResult: String? ->
@@ -352,6 +440,36 @@ class MainViewModelTest {
 
             // Then
             actualResult shouldBe expectedResult
+        }
+    }
+
+    @Test
+    fun `on initializeCityIndexTable - no city data in db - verify read from json and save in db correctly`() {
+        testCoroutineRule.runBlockingTest {
+            // Given
+            cityRepository.stub { onBlocking { getCityCount() }.doReturn(0) }
+
+            // When
+            viewModel.initializeCityIndexTable()
+
+            // Then
+            verify(cityRepository, times(1)).readCityList()
+            verify(cityRepository, times(1)).writeCityList(any())
+        }
+    }
+
+    @Test
+    fun `on initializeCityIndexTable - has city data in db - verify no initialization launched`() {
+        testCoroutineRule.runBlockingTest {
+            // Given
+            cityRepository.stub { onBlocking { getCityCount() }.doReturn(1) }
+
+            // When
+            viewModel.initializeCityIndexTable()
+
+            // Then
+            verify(cityRepository, never()).readCityList()
+            verify(cityRepository, never()).writeCityList(any())
         }
     }
 }

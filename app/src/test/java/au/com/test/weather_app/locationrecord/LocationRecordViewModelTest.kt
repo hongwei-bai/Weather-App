@@ -9,7 +9,6 @@ import au.com.test.weather_app.test.factory.DomainWeatherDataFactory
 import au.com.test.weather_app.util.Logger
 import com.nhaarman.mockitokotlin2.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -43,11 +42,6 @@ class LocationRecordViewModelTest {
         )
 
         clearInvocations(weatherRepository)
-    }
-
-    @After
-    fun teardown() {
-        LocalProperties.IS_LOGGING_ENABLED = true
     }
 
     @Test

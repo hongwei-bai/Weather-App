@@ -21,29 +21,37 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-    signingConfigs {
-        release {
-            keyAlias RELEASE_KEY_ALIAS
-            keyPassword RELEASE_KEY_PASSWORD
-            storeFile file(RELEASE_STORE_FILE)
-            storePassword RELEASE_STORE_PASSWORD
-        }
-        debug {
-            keyAlias 'uploadd'
-            keyPassword 'test456d'
-            storeFile file('../weatherapp.debug.jks')
-            storePassword 'test123d'
-        }
-    }
+//    signingConfigs {
+//        release {
+//            keyAlias RELEASE_KEY_ALIAS
+//            keyPassword RELEASE_KEY_PASSWORD
+//            storeFile file(RELEASE_STORE_FILE)
+//            storePassword RELEASE_STORE_PASSWORD
+//        }
+//        debug {
+//            keyAlias 'uploadd'
+//            keyPassword 'test456d'
+//            storeFile file('../weatherapp.debug.jks')
+//            storePassword 'test123d'
+//        }
+//    }
     buildTypes {
         debug {
-            signingConfig signingConfigs.debug
+//            signingConfig signingConfigs.debug
+            testCoverageEnabled = true
         }
+
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
+//            signingConfig signingConfigs.release
         }
+    }
+    jacoco {
+        version "0.8.3"
+    }
+    testOptions {
+        unitTests.returnDefaultValues = true
     }
 }
 

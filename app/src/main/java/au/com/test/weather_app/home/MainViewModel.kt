@@ -36,7 +36,8 @@ class MainViewModel @Inject constructor(
 
     val currentWeather: MutableLiveData<WeatherData> = MutableLiveData()
 
-    val recentRecords: LiveData<PagedList<WeatherData>> = weatherRepository.getAllLocationRecordsSortByLatestUpdate()
+    val recentRecords: LiveData<PagedList<WeatherData>> =
+        weatherRepository.getAllLocationRecordsSortByLatestUpdate()
 
     val searchSuggestions: MutableLiveData<List<CityData>> = MutableLiveData()
 
@@ -96,10 +97,16 @@ class MainViewModel @Inject constructor(
         uiScope.launch(handler) {
             withContext(contextProvider.IO) {
                 val queryGroup = data.getQueryGroup()
-                logger.i(TAG, "fetch(WeatherData): last location record: ${data.cityName}, zip: ${data.zipCode}, location: ${data.latitude}, ${data.longitude}, queryGroup: $queryGroup")
+                logger.i(
+                    TAG,
+                    "fetch(WeatherData): last location record: ${data.cityName}, zip: ${data.zipCode}, location: ${data.latitude}, ${data.longitude}, queryGroup: $queryGroup"
+                )
                 when (queryGroup) {
                     CityId -> weatherRepository.queryWeatherById(data.cityId)
-                    ZipCode -> weatherRepository.queryWeatherByZipCode(data.zipCode, data.countryCode)
+                    ZipCode -> weatherRepository.queryWeatherByZipCode(
+                        data.zipCode,
+                        data.countryCode
+                    )
                     Corrdinate -> {
                         println("go(): call queryWeatherByCoordinate")
                         weatherRepository.queryWeatherByCoordinate(data.latitude, data.longitude)
@@ -118,7 +125,10 @@ class MainViewModel @Inject constructor(
             withContext(contextProvider.IO) {
                 with(weatherRepository) {
                     (keyWord.toLongOrNull()?.let {
-                        logger.i(TAG, "fetch(): queryWeatherByZipCode zip: $it, countryCode: $countryCode")
+                        logger.i(
+                            TAG,
+                            "fetch(): queryWeatherByZipCode zip: $it, countryCode: $countryCode"
+                        )
                         zipCode = it
                         queryWeatherByZipCode(it, countryCode)
                     } ?: queryWeatherByCityName(keyWord, countryCode))
@@ -197,8 +207,12 @@ class MainViewModel @Inject constructor(
             string
         } ?: ""
 
-    private fun trimValidCityNameOrZipCode(input: String, countryCodeWithDividers: String?): String {
-        var string = countryCodeWithDividers?.let { input.replace(countryCodeWithDividers, "") } ?: input
+    private fun trimValidCityNameOrZipCode(
+        input: String,
+        countryCodeWithDividers: String?
+    ): String {
+        var string =
+            countryCodeWithDividers?.let { input.replace(countryCodeWithDividers, "") } ?: input
         COUNTRY_CODE_DIVIDER_CHARS.forEach {
             while (string.contains(it)) {
                 string = string.replace(it, "")
