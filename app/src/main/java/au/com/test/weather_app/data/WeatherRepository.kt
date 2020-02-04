@@ -1,18 +1,36 @@
 package au.com.test.weather_app.data
 
-import au.com.test.weather_app.data.source.local.owm.models.City
-import au.com.test.weather_app.data.source.remote.owm.models.WeatherRepsonse
-import io.reactivex.Observable
+import androidx.lifecycle.LiveData
+import androidx.paging.PagedList
+import au.com.test.weather_app.data.domain.entities.WeatherData
 
 
 interface WeatherRepository {
-    fun getCityList(): Observable<List<City>>
+    suspend fun queryWeatherByCityName(cityName: String, countryCode: String? = null): WeatherData?
 
-    fun queryWeatherData(cityName: String, countryCode: String? = null): Observable<WeatherRepsonse>
+    suspend fun queryWeatherById(cityId: Long?): WeatherData?
 
-    fun queryWeatherById(cityId: Long): Observable<WeatherRepsonse>
+    suspend fun queryWeatherByCoordinate(lat: Double, lon: Double): WeatherData?
 
-    fun queryWeatherByCoordinate(lat: Double, lon: Double): Observable<WeatherRepsonse>
+    suspend fun queryWeatherByZipCode(zipCode: Long?, countryCode: String? = null): WeatherData?
 
-    fun queryWeatherByZipCode(zipCode: Long, countryCode: String? = null): Observable<WeatherRepsonse>
+    fun getAllLocationRecordsSortByLatestUpdate(): LiveData<PagedList<WeatherData>>
+
+    fun lookupLocationRecordsSortByLatestUpdate(keyword: String): LiveData<PagedList<WeatherData>>
+
+    fun getLastLocationRecord(): WeatherData?
+
+    fun getLocationRecordByCityId(cityId: Long?): WeatherData?
+
+    fun getLocationRecordByZipCode(zipCode: Long?, countryCode: String?): WeatherData?
+
+    fun getLocationRecordByLocation(lat: Double, lon: Double): WeatherData?
+
+    fun updateLocationRecord(data: WeatherData)
+
+    fun insertLocationRecord(data: WeatherData)
+
+    fun deleteLocationRecord(data: WeatherData)
+
+    fun deleteLocationRecords(list: List<WeatherData>)
 }

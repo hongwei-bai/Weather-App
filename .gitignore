@@ -38,6 +38,18 @@ hs_err_pid*
 .externalNativeBuild
 .cxx
 
-# Signature
-*.jks
+# Signature. These would be turned on for a real project.
+#keystore/
+#*.jks
 *.pepk
+
+# requirement docs
+storyboard/
+
+# buildings
+app/release/
+app/debug/
+
+# local city list
+#city.list.json
+current.city.list.json

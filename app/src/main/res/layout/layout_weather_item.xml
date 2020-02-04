@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?android:attr/selectableItemBackground"
+    android:paddingStart="@dimen/spacing_l"
+    android:paddingTop="@dimen/spacing_s"
+    android:paddingEnd="@dimen/spacing_l"
+    android:paddingBottom="@dimen/spacing_s">
+
+    <ImageView
+        android:id="@+id/imgGpsIcon"
+        android:layout_width="@dimen/spacing_m"
+        android:layout_height="@dimen/spacing_m"
+        android:contentDescription="@string/recent_item_location_icon_content_description"
+        android:src="@drawable/ic_location_on_black_24dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/txtLastUpdate" />
+
+    <TextView
+        android:id="@+id/txtTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/spacing_s"
+        android:textAppearance="@style/WeatherAppTheme.Current.Subtitle"
+        app:layout_constraintBaseline_toBaselineOf="@id/txtLastUpdate"
+        app:layout_constraintStart_toEndOf="@id/imgGpsIcon"
+        tools:text="Sydney, AU" />
+
+    <TextView
+        android:id="@+id/txtGpsLocation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/WeatherAppTheme.Current.Subtitle2"
+        app:layout_constraintBaseline_toBaselineOf="@id/txtLastUpdate"
+        app:layout_constraintStart_toEndOf="@id/txtTitle"
+        tools:text="-33.000000, 151.000000" />
+
+    <TextView
+        android:id="@+id/txtLastUpdate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/spacing_s"
+        android:textAppearance="@style/WeatherAppTheme.Current.Subtitle3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="2 hours ago" />
+
+    <ImageView
+        android:id="@+id/imgIcon"
+        android:layout_width="54dp"
+        android:layout_height="54dp"
+        android:contentDescription="@string/weather_icon_content_description"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/txtTitle" />
+
+    <TextView
+        android:id="@+id/txtMain"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/spacing_l"
+        android:textAppearance="@style/WeatherAppTheme.Current.Subtitle"
+        app:layout_constraintBottom_toTopOf="@id/txtTemperature"
+        app:layout_constraintStart_toEndOf="@id/imgIcon"
+        tools:text="Rain" />
+
+    <TextView
+        android:id="@+id/txtTemperature"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/spacing_s"
+        android:textAppearance="@style/WeatherAppTheme.Current.Title"
+        app:layout_constraintBottom_toBottomOf="@id/imgIcon"
+        app:layout_constraintStart_toStartOf="@id/txtMain"
+        tools:text="37C/100F" />
+
+    <ImageView
+        android:id="@+id/imgDelete"
+        android:layout_width="@dimen/spacing_l"
+        android:layout_height="@dimen/spacing_l"
+        android:contentDescription="@string/history_item_delete_icon_content_description"
+        android:src="@drawable/ic_delete_forever_24dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.6" />
+
+    <ImageView
+        android:id="@+id/imgCheckBox"
+        android:layout_width="@dimen/spacing_l"
+        android:layout_height="@dimen/spacing_l"
+        android:clickable="false"
+        android:contentDescription="@string/history_item_select_icon_content_description"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:src="@drawable/selector_checkbox"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.6" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
