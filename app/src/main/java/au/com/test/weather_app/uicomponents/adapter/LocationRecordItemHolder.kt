@@ -1,13 +1,13 @@
-package au.com.test.weather_app.components.adapter
+package au.com.test.weather_app.uicomponents.adapter
 
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import au.com.test.weather_app.LocalProperties
 import au.com.test.weather_app.R
-import au.com.test.weather_app.components.adapter.LocationRecordListAdapter.WorkMode
-import au.com.test.weather_app.components.adapter.LocationRecordListAdapter.WorkMode.Default
-import au.com.test.weather_app.components.adapter.LocationRecordListAdapter.WorkMode.Delete
-import au.com.test.weather_app.components.adapter.LocationRecordListAdapter.WorkMode.MultipleDelete
+import au.com.test.weather_app.uicomponents.adapter.LocationRecordListAdapter.WorkMode
+import au.com.test.weather_app.uicomponents.adapter.LocationRecordListAdapter.WorkMode.Default
+import au.com.test.weather_app.uicomponents.adapter.LocationRecordListAdapter.WorkMode.Delete
+import au.com.test.weather_app.uicomponents.adapter.LocationRecordListAdapter.WorkMode.MultipleDelete
 import au.com.test.weather_app.data.domain.entities.WeatherData
 import au.com.test.weather_app.util.DateUtil
 import au.com.test.weather_app.util.GlideApp

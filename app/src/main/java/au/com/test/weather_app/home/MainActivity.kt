@@ -4,21 +4,27 @@ import android.Manifest
 import android.content.Context
 import android.location.LocationManager
 import android.os.Bundle
+import android.util.Log
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.DividerItemDecoration.VERTICAL
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import au.com.test.weather_app.R
-import au.com.test.weather_app.components.WeatherToolBar.ToolbarButton.LeftButton
-import au.com.test.weather_app.components.WeatherToolBar.ToolbarButton.LeftButtonOnSearchMode
-import au.com.test.weather_app.components.WeatherToolBar.ToolbarButton.RightButtonOnSearchMode
-import au.com.test.weather_app.components.adapter.LocationRecordListAdapter
+import au.com.test.weather_app.data.domain.entities.WeatherData
+import au.com.test.weather_app.uicomponents.WeatherToolBar.ToolbarButton.LeftButton
+import au.com.test.weather_app.uicomponents.WeatherToolBar.ToolbarButton.LeftButtonOnSearchMode
+import au.com.test.weather_app.uicomponents.WeatherToolBar.ToolbarButton.RightButtonOnSearchMode
+import au.com.test.weather_app.uicomponents.adapter.LocationRecordListAdapter
 import au.com.test.weather_app.di.base.BaseActivity
 import au.com.test.weather_app.di.components.DaggerActivityComponent
 import au.com.test.weather_app.di.modules.ActivityModule
 import au.com.test.weather_app.home.search.SearchSuggestionListAdapter
 import au.com.test.weather_app.locationrecord.LocationRecordActivity
+import au.com.test.weather_app.uicomponents.model.Default
+import au.com.test.weather_app.uicomponents.model.Loading
+import au.com.test.weather_app.uicomponents.model.Success
+import au.com.test.weather_app.uicomponents.model.Error
 import au.com.test.weather_app.util.gone
 import au.com.test.weather_app.util.show
 import com.google.android.material.snackbar.Snackbar
@@ -95,21 +101,12 @@ class MainActivity : BaseActivity(), SwipeRefreshLayout.OnRefreshListener {
     }
 
     private fun observeViewModelState() {
-        viewModel.currentWeather.observe(this, Observer { currentWeather ->
-            layoutSwipeRefresh.isRefreshing = false
-            currentWeather?.let {
-                layoutCurrentLocationWeather.update(currentWeather)
-                divider.show()
-                layoutToolbar.title = currentWeather.getCityTitle() ?: getString(
-                    R.string.unknown_location,
-                    currentWeather.latitude,
-                    currentWeather.longitude
-                )
-                txtTitle.clearFocus()
-                hideKeyboard()
-            } ?: run {
-                layoutToolbar.switchSearchMode(true)
-                layoutCurrentLocationWeather.showWelcome()
+        viewModel.currentWeatherState.observe(this, Observer {
+            when (it) {
+                is Loading -> onCurrentWeatherDataStartLoading()
+                is Success<*> -> onCurrentWeatherDataLoadSuccess(it.data as WeatherData)
+                is Default -> onCurrentWeatherDataEmpty()
+                is Error -> onCurrentWeatherDataLoadError()
             }
         })
 
@@ -120,18 +117,42 @@ class MainActivity : BaseActivity(), SwipeRefreshLayout.OnRefreshListener {
             }
         })
 
-        viewModel.uiError.observe(this, Observer { exception ->
-            layoutSwipeRefresh.isRefreshing = false
-            if (exception != null) {
-                layoutCurrentLocationWeather.showError()
-                Snackbar.make(layoutSwipeRefresh, R.string.general_error, Snackbar.LENGTH_LONG).show()
-            }
-        })
-
         viewModel.searchSuggestions.observe(this, Observer { list ->
             recyclerSearchSuggestion.show(list?.size ?: 0 > 0)
             searchSuggestionListAdapter.data = list
         })
+    }
+
+    private fun onCurrentWeatherDataStartLoading() {
+        resetSearchSuggestion()
+        layoutSwipeRefresh.isRefreshing = true
+    }
+
+    private fun onCurrentWeatherDataLoadSuccess(weatherData: WeatherData) {
+        layoutCurrentLocationWeather.update(weatherData)
+        layoutCurrentLocationWeather.setLoading(false) {
+            layoutSwipeRefresh.isRefreshing = false
+        }
+        divider.show()
+        layoutToolbar.title = weatherData.getCityTitle() ?: getString(
+            R.string.unknown_location,
+            weatherData.latitude,
+            weatherData.longitude
+        )
+        txtTitle.clearFocus()
+        hideKeyboard()
+    }
+
+    private fun onCurrentWeatherDataLoadError() {
+        layoutSwipeRefresh.isRefreshing = false
+        layoutCurrentLocationWeather.showError()
+        Snackbar.make(layoutSwipeRefresh, R.string.general_error, Snackbar.LENGTH_LONG).show()
+    }
+
+    private fun onCurrentWeatherDataEmpty() {
+        layoutSwipeRefresh.isRefreshing = false
+        layoutToolbar.switchSearchMode(true)
+        layoutCurrentLocationWeather.showWelcome()
     }
 
     private fun initializeSwipeRefreshLayout() {

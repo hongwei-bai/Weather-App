@@ -10,18 +10,21 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import au.com.test.weather_app.R
-import au.com.test.weather_app.components.WeatherToolBar.ToolbarButton.LeftButton
-import au.com.test.weather_app.components.WeatherToolBar.ToolbarButton.RightButton
-import au.com.test.weather_app.components.WeatherToolBar.ToolbarButton.SecondaryRightButton
-import au.com.test.weather_app.components.adapter.LocationRecordListAdapter
-import au.com.test.weather_app.components.adapter.LocationRecordListAdapter.WorkMode
-import au.com.test.weather_app.components.adapter.LocationRecordListAdapter.WorkMode.Delete
-import au.com.test.weather_app.components.adapter.LocationRecordListAdapter.WorkMode.MultipleDelete
+import au.com.test.weather_app.uicomponents.WeatherToolBar.ToolbarButton.LeftButton
+import au.com.test.weather_app.uicomponents.WeatherToolBar.ToolbarButton.RightButton
+import au.com.test.weather_app.uicomponents.WeatherToolBar.ToolbarButton.SecondaryRightButton
+import au.com.test.weather_app.uicomponents.adapter.LocationRecordListAdapter
+import au.com.test.weather_app.uicomponents.adapter.LocationRecordListAdapter.WorkMode
+import au.com.test.weather_app.uicomponents.adapter.LocationRecordListAdapter.WorkMode.Delete
+import au.com.test.weather_app.uicomponents.adapter.LocationRecordListAdapter.WorkMode.MultipleDelete
 import au.com.test.weather_app.data.domain.entities.WeatherData
 import au.com.test.weather_app.di.base.BaseActivity
 import au.com.test.weather_app.di.components.DaggerActivityComponent
 import au.com.test.weather_app.di.modules.ActivityModule
 import au.com.test.weather_app.home.MainViewModel
+import au.com.test.weather_app.uicomponents.model.Loading
+import au.com.test.weather_app.uicomponents.model.Error
+import au.com.test.weather_app.uicomponents.model.Success
 import au.com.test.weather_app.util.show
 import kotlinx.android.synthetic.main.activity_location_record.*
 import kotlinx.android.synthetic.main.dialog_weather.*
@@ -66,6 +69,7 @@ class LocationRecordActivity : BaseActivity() {
 
     override fun onPause() {
         weatherDialog?.dismiss()
+        weatherDialog = null
         super.onPause()
     }
 
@@ -85,7 +89,14 @@ class LocationRecordActivity : BaseActivity() {
                 notifyDataSetChanged()
             }
         })
-        mainViewModel.currentWeather.observe(this, Observer { weatherDialog?.layoutWeather?.update(it) })
+        mainViewModel.currentWeatherState.observe(this, Observer {
+            when (it) {
+                is Error -> weatherDialog?.layoutWeather?.showError()
+                is Success<*> -> weatherDialog?.layoutWeather?.apply {
+                    update(it.data as WeatherData)
+                }
+            }
+        })
     }
 
     private fun initializeRecyclerView() {
@@ -207,7 +218,11 @@ class LocationRecordActivity : BaseActivity() {
             setView(View.inflate(context, R.layout.dialog_weather, null))
             setCancelable(true)
         }
-        weatherDialog = builder.create().apply { show() }
+        weatherDialog = builder.create().apply {
+            show()
+            layoutWeather.setLoading()
+            setOnDismissListener { weatherDialog = null }
+        }
         mainViewModel.fetch(data)
     }
 }

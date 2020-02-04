@@ -5,12 +5,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <au.com.test.weather_app.components.WeatherToolBar
+    <au.com.test.weather_app.uicomponents.WeatherToolBar
         android:id="@+id/layoutToolbar"
         android:layout_width="match_parent"
         android:layout_height="@dimen/toolbar_height"
         android:layout_gravity="top"
-        android:layout_marginTop="@dimen/spacing_xs"
         android:background="@color/colorTransparent" />
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -18,13 +17,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="bottom"
-        android:layout_marginTop="@dimen/toolbar_height_ex">
+        android:layout_marginTop="@dimen/toolbar_height">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <au.com.test.weather_app.components.WeatherView
+            <au.com.test.weather_app.uicomponents.WeatherView
                 android:id="@+id/layoutCurrentLocationWeather"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -52,7 +51,7 @@
         android:id="@+id/recyclerSearchSuggestion"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/toolbar_height_ex"
+        android:layout_marginTop="@dimen/toolbar_height"
         android:alpha="0.96"
         android:background="@color/colorLightGrey"
         app:layout_constraintTop_toTopOf="parent"

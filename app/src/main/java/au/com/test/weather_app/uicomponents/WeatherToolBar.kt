@@ -1,4 +1,4 @@
-package au.com.test.weather_app.components
+package au.com.test.weather_app.uicomponents
 
 import android.content.Context
 import android.util.AttributeSet
@@ -13,11 +13,11 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.widget.addTextChangedListener
 import au.com.test.weather_app.R
-import au.com.test.weather_app.components.WeatherToolBar.ToolbarButton.LeftButton
-import au.com.test.weather_app.components.WeatherToolBar.ToolbarButton.LeftButtonOnSearchMode
-import au.com.test.weather_app.components.WeatherToolBar.ToolbarButton.RightButton
-import au.com.test.weather_app.components.WeatherToolBar.ToolbarButton.RightButtonOnSearchMode
-import au.com.test.weather_app.components.WeatherToolBar.ToolbarButton.SecondaryRightButton
+import au.com.test.weather_app.uicomponents.WeatherToolBar.ToolbarButton.LeftButton
+import au.com.test.weather_app.uicomponents.WeatherToolBar.ToolbarButton.LeftButtonOnSearchMode
+import au.com.test.weather_app.uicomponents.WeatherToolBar.ToolbarButton.RightButton
+import au.com.test.weather_app.uicomponents.WeatherToolBar.ToolbarButton.RightButtonOnSearchMode
+import au.com.test.weather_app.uicomponents.WeatherToolBar.ToolbarButton.SecondaryRightButton
 import au.com.test.weather_app.util.hide
 import au.com.test.weather_app.util.show
 import kotlinx.android.synthetic.main.layout_toolbar.view.*

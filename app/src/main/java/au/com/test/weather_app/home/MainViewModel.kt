@@ -12,6 +12,11 @@ import au.com.test.weather_app.data.domain.entities.WeatherData.QueryGroup.CityI
 import au.com.test.weather_app.data.domain.entities.WeatherData.QueryGroup.Corrdinate
 import au.com.test.weather_app.data.domain.entities.WeatherData.QueryGroup.ZipCode
 import au.com.test.weather_app.di.base.BaseViewModel
+import au.com.test.weather_app.uicomponents.model.Default
+import au.com.test.weather_app.uicomponents.model.Error
+import au.com.test.weather_app.uicomponents.model.Loading
+import au.com.test.weather_app.uicomponents.model.Success
+import au.com.test.weather_app.uicomponents.model.ViewState
 import au.com.test.weather_app.util.CoroutineContextProvider
 import au.com.test.weather_app.util.Logger
 import au.com.test.weather_app.util.PerformanceUtil
@@ -34,18 +39,16 @@ class MainViewModel @Inject constructor(
         private const val REGEX_COUNTRY_CODE = "[ ,]{1}\\w{2}$"
     }
 
-    val currentWeather: MutableLiveData<WeatherData> = MutableLiveData()
+    val currentWeatherState: MutableLiveData<ViewState> = MutableLiveData()
 
     val recentRecords: LiveData<PagedList<WeatherData>> =
         weatherRepository.getAllLocationRecordsSortByLatestUpdate()
 
     val searchSuggestions: MutableLiveData<List<CityData>> = MutableLiveData()
 
-    val uiError: MutableLiveData<Throwable?> = MutableLiveData()
-
     private val handler = CoroutineExceptionHandler { _, exception ->
         logger.e(TAG, "caught view model level exception: ${exception.localizedMessage}")
-        uiError.value = exception
+        publishViewStateError(exception)
     }
 
     fun go() {
@@ -75,6 +78,7 @@ class MainViewModel @Inject constructor(
     }
 
     fun fetch(input: String) {
+        publishViewStateLoading()
         logger.i(TAG, "fetch(): input string: $input")
         val info = parseInput(input)
         logger.i(TAG, "fetch(): parsed keyWord: ${info.first}, countryCode: ${info.second}")
@@ -82,44 +86,40 @@ class MainViewModel @Inject constructor(
     }
 
     fun fetch(lat: Double, lon: Double) {
+        publishViewStateLoading()
         uiScope.launch(handler) {
             withContext(contextProvider.IO) {
                 logger.i(TAG, "fetch(lat, lon): queryWeatherByCoordinate lat: $lat, lon: $lon")
                 weatherRepository.queryWeatherByCoordinate(lat, lon)
             }?.let {
                 logger.i(TAG, "fetch(lat, lon): new current weather: $it")
-                updateLocationRecords(it)
+                postProcessFetchedData(it)
             }
         }
     }
 
     fun fetch(data: WeatherData) {
+        publishViewStateLoading()
         uiScope.launch(handler) {
             withContext(contextProvider.IO) {
                 val queryGroup = data.getQueryGroup()
-                logger.i(
-                    TAG,
-                    "fetch(WeatherData): last location record: ${data.cityName}, zip: ${data.zipCode}, location: ${data.latitude}, ${data.longitude}, queryGroup: $queryGroup"
-                )
+                logger.i(TAG, "fetch(WeatherData): last location record: ${data.cityName}, zip: ${data.zipCode}, location: ${data.latitude}, ${data.longitude}, queryGroup: $queryGroup")
                 when (queryGroup) {
                     CityId -> weatherRepository.queryWeatherById(data.cityId)
-                    ZipCode -> weatherRepository.queryWeatherByZipCode(
-                        data.zipCode,
-                        data.countryCode
-                    )
+                    ZipCode -> weatherRepository.queryWeatherByZipCode(data.zipCode, data.countryCode)
                     Corrdinate -> {
-                        println("go(): call queryWeatherByCoordinate")
                         weatherRepository.queryWeatherByCoordinate(data.latitude, data.longitude)
                     }
                 }
             }?.let {
                 logger.i(TAG, "fetch(WeatherData): new current weather: $it")
-                updateLocationRecords(it, data.zipCode)
+                postProcessFetchedData(it, data.zipCode)
             }
         }
     }
 
     fun fetch(keyWord: String, countryCode: String) {
+        publishViewStateLoading()
         var zipCode: Long? = null
         uiScope.launch(handler) {
             withContext(contextProvider.IO) {
@@ -135,21 +135,17 @@ class MainViewModel @Inject constructor(
                 }
             }?.let {
                 logger.i(TAG, "fetch(): new current weather: $it")
-                updateLocationRecords(it, zipCode)
+                postProcessFetchedData(it, zipCode)
             }
         }
     }
 
-    private fun emitNullCurrentWeatherLiveData(): WeatherData? {
-        uiScope.launch { currentWeather.value = null }
-        return null
+    private fun postProcessFetchedData(data: WeatherData, queryZipCode: Long? = null) {
+        publishViewStateSuccess(data)
+        updateLocationRecords(data, queryZipCode)
     }
 
     private fun updateLocationRecords(data: WeatherData, queryZipCode: Long? = null) {
-        uiScope.launch {
-            currentWeather.value = data
-            uiError.value = null
-        }
         uiScope.launch(contextProvider.IO) {
             data.zipCode = queryZipCode
             val match: WeatherData? = getLocationRecord(data)
@@ -176,7 +172,7 @@ class MainViewModel @Inject constructor(
         uiScope.launch(contextProvider.IO) {
             weatherRepository.getLastLocationRecord()?.let { data ->
                 fetch(data)
-            } ?: emitNullCurrentWeatherLiveData()
+            } ?: publishViewStateDefault()
         }
     }
 
@@ -220,4 +216,24 @@ class MainViewModel @Inject constructor(
         }
         return string
     }
+
+    private fun publishViewStateSuccess(data: WeatherData) =
+        uiScope.launch(contextProvider.Main) {
+            currentWeatherState.value = Success(data)
+        }
+
+    private fun publishViewStateLoading() =
+        uiScope.launch(contextProvider.Main) {
+            currentWeatherState.value = Loading
+        }
+
+    private fun publishViewStateError(exception: Throwable) =
+        uiScope.launch(contextProvider.Main) {
+            currentWeatherState.value = Error(exception)
+        }
+
+    private fun publishViewStateDefault() =
+        uiScope.launch(contextProvider.Main) {
+            currentWeatherState.value = Default
+        }
 }

@@ -10,6 +10,10 @@ import au.com.test.weather_app.data.source.local.owm.models.City
 import au.com.test.weather_app.test.TestContextProvider
 import au.com.test.weather_app.test.TestCoroutineRule
 import au.com.test.weather_app.test.factory.DomainWeatherDataFactory
+import au.com.test.weather_app.uicomponents.model.Default
+import au.com.test.weather_app.uicomponents.model.Loading
+import au.com.test.weather_app.uicomponents.model.Success
+import au.com.test.weather_app.uicomponents.model.ViewState
 import au.com.test.weather_app.util.Logger
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.clearInvocations
@@ -21,6 +25,7 @@ import com.nhaarman.mockitokotlin2.stub
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
+import io.kotlintest.matchers.types.shouldBeInstanceOf
 import io.kotlintest.shouldBe
 import io.kotlintest.tables.forAll
 import io.kotlintest.tables.headers
@@ -50,8 +55,8 @@ class MainViewModelTest {
 
     @Mock
     lateinit var logger: Logger
-    private var viewStateObserver: Observer<WeatherData> = mock()
-    private var viewStateObserver2: Observer<City> = mock()
+    private var viewStateObserver: Observer<ViewState> = mock()
+    private var cityObserver: Observer<List<*>> = mock()
 
     @Before
     fun setup() {
@@ -63,7 +68,8 @@ class MainViewModelTest {
             logger,
             TestContextProvider()
         ).apply {
-            currentWeather.observeForever(viewStateObserver)
+            currentWeatherState.observeForever(viewStateObserver)
+            searchSuggestions.observeForever(cityObserver)
         }
 
         clearInvocations(weatherRepository)
@@ -84,7 +90,7 @@ class MainViewModelTest {
             viewModel.go()
 
             // Then
-            verify(viewStateObserver).onChanged(null)
+            verify(viewStateObserver).onChanged(Default)
         }
     }
 
@@ -100,7 +106,8 @@ class MainViewModelTest {
             viewModel.go()
 
             // Then
-            verify(viewStateObserver).onChanged(sydneySnow)
+            verify(viewStateObserver).onChanged(Loading)
+            verify(viewStateObserver).onChanged(Success(sydneySnow))
             verify(weatherRepository, never()).queryWeatherByCoordinate(any(), any())
         }
     }
@@ -122,7 +129,8 @@ class MainViewModelTest {
             viewModel.go()
 
             // Then
-            verify(viewStateObserver).onChanged(sydneySnow)
+            verify(viewStateObserver).onChanged(Loading)
+            verify(viewStateObserver).onChanged(Success(sydneySnow))
             verify(weatherRepository, never()).queryWeatherByCoordinate(any(), any())
             verify(weatherRepository, never()).getLocationRecordByLocation(any(), any())
             verify(weatherRepository, times(1)).updateLocationRecord(eq(sydneySnow))
@@ -146,7 +154,8 @@ class MainViewModelTest {
             viewModel.go()
 
             // Then
-            verify(viewStateObserver).onChanged(surryHillsRain)
+            verify(viewStateObserver).onChanged(Loading)
+            verify(viewStateObserver).onChanged(Success(surryHillsRain))
             verify(weatherRepository, never()).queryWeatherById(any())
         }
     }
@@ -172,7 +181,8 @@ class MainViewModelTest {
             viewModel.go()
 
             // Then
-            verify(viewStateObserver).onChanged(surryHillsRain)
+            verify(viewStateObserver).onChanged(Loading)
+            verify(viewStateObserver).onChanged(Success(surryHillsRain))
             verify(weatherRepository, never()).queryWeatherById(any())
             verify(weatherRepository, never()).getLocationRecordByCityId(any())
             verify(weatherRepository, times(1)).updateLocationRecord(eq(surryHillsRain))
@@ -199,7 +209,8 @@ class MainViewModelTest {
             viewModel.go()
 
             // Then
-            verify(viewStateObserver).onChanged(nowhereRain)
+            verify(viewStateObserver).onChanged(Loading)
+            verify(viewStateObserver).onChanged(Success(nowhereRain))
             verify(weatherRepository, never()).queryWeatherById(any())
         }
     }
@@ -231,7 +242,8 @@ class MainViewModelTest {
             viewModel.go()
 
             // Then
-            verify(viewStateObserver).onChanged(nowhereRain)
+            verify(viewStateObserver).onChanged(Loading)
+            verify(viewStateObserver).onChanged(Success(nowhereRain))
             verify(weatherRepository, never()).queryWeatherById(any())
             verify(weatherRepository, never()).getLocationRecordByCityId(any())
             verify(weatherRepository, times(1)).updateLocationRecord(eq(nowhereRain))
@@ -260,7 +272,8 @@ class MainViewModelTest {
             viewModel.fetch(-83.28, 105.95)
 
             // Then
-            verify(viewStateObserver).onChanged(nowhereRain)
+            verify(viewStateObserver).onChanged(Loading)
+            verify(viewStateObserver).onChanged(Success(nowhereRain))
             verify(weatherRepository, never()).queryWeatherById(any())
         }
     }
@@ -287,7 +300,8 @@ class MainViewModelTest {
             viewModel.fetch(-83.28, 105.95)
 
             // Then
-            verify(viewStateObserver).onChanged(nowhereRain)
+            verify(viewStateObserver).onChanged(Loading)
+            verify(viewStateObserver).onChanged(Success(nowhereRain))
             verify(weatherRepository, times(1)).updateLocationRecord(eq(nowhereRain))
             verify(weatherRepository, never()).insertLocationRecord(any())
         }
@@ -313,7 +327,8 @@ class MainViewModelTest {
             viewModel.fetch(-83.28, 105.95)
 
             // Then
-            verify(viewStateObserver).onChanged(nowhereRain)
+            verify(viewStateObserver).onChanged(Loading)
+            verify(viewStateObserver).onChanged(Success(nowhereRain))
             verify(weatherRepository, times(1)).insertLocationRecord(eq(nowhereRain))
             verify(weatherRepository, never()).updateLocationRecord(any())
         }
@@ -338,7 +353,8 @@ class MainViewModelTest {
             viewModel.fetch("Sydney, AU")
 
             // Then
-            verify(viewStateObserver).onChanged(sydneyRain)
+            verify(viewStateObserver).onChanged(Loading)
+            verify(viewStateObserver).onChanged(Success(sydneyRain))
         }
     }
 
@@ -361,7 +377,8 @@ class MainViewModelTest {
             viewModel.fetch("Sydney, AU")
 
             // Then
-            verify(viewStateObserver).onChanged(sydneyRain)
+            verify(viewStateObserver).onChanged(Loading)
+            verify(viewStateObserver).onChanged(Success(sydneyRain))
             verify(weatherRepository, times(1)).updateLocationRecord(eq(sydneyRain))
             verify(weatherRepository, never()).insertLocationRecord(any())
         }
@@ -384,7 +401,8 @@ class MainViewModelTest {
             viewModel.fetch("Sydney, AU")
 
             // Then
-            verify(viewStateObserver).onChanged(sydneyRain)
+            verify(viewStateObserver).onChanged(Loading)
+            verify(viewStateObserver).onChanged(Success(sydneyRain))
             verify(weatherRepository, never()).updateLocationRecord(any())
             verify(weatherRepository, times(1)).insertLocationRecord(eq(sydneyRain))
         }
@@ -409,7 +427,8 @@ class MainViewModelTest {
             viewModel.fetch("2010, AU")
 
             // Then
-            verify(viewStateObserver).onChanged(surryHillsRain)
+            verify(viewStateObserver).onChanged(Loading)
+            verify(viewStateObserver).onChanged(Success(surryHillsRain))
         }
     }
 

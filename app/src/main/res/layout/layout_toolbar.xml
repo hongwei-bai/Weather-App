@@ -7,8 +7,8 @@
 
     <ImageButton
         android:id="@+id/imgBtnLeft"
-        android:layout_width="@dimen/spacing_l"
-        android:layout_height="@dimen/spacing_l"
+        android:layout_width="@dimen/toolbar_button_size"
+        android:layout_height="@dimen/toolbar_button_size"
         android:layout_marginStart="@dimen/spacing_m"
         android:background="@color/colorTransparent"
         android:contentDescription="@string/toolbar_button"
@@ -20,9 +20,10 @@
     <EditText
         android:id="@+id/editTxtSearh"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/toolbar_edittext_height"
         android:layout_marginStart="@dimen/spacing_m"
         android:layout_marginEnd="@dimen/spacing_m"
+        android:autofillHints=""
         android:background="@drawable/bg_round_rect"
         android:inputType="text"
         android:paddingStart="@dimen/spacing_s"
@@ -30,14 +31,13 @@
         android:paddingEnd="@dimen/spacing_s"
         android:paddingBottom="@dimen/spacing_xs"
         android:singleLine="true"
-        android:textAppearance="@style/WeatherAppTheme.Current.Subtitle"
+        android:textAppearance="@style/WeatherAppTheme.Current.Secondary"
         android:textColorHint="@color/colorMediumGrey"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/imgBtnRight"
         app:layout_constraintStart_toEndOf="@id/imgBtnLeft"
         app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="LabelFor,UnusedAttribute"
-        android:autofillHints="" />
+        tools:ignore="LabelFor,UnusedAttribute" />
 
     <TextView
         android:id="@+id/txtTitle"
@@ -56,8 +56,8 @@
 
     <ImageButton
         android:id="@+id/imgBtnRight2"
-        android:layout_width="@dimen/spacing_l"
-        android:layout_height="@dimen/spacing_l"
+        android:layout_width="@dimen/toolbar_button_size"
+        android:layout_height="@dimen/toolbar_button_size"
         android:layout_marginEnd="@dimen/spacing_m"
         android:background="@color/colorTransparent"
         android:contentDescription="@string/toolbar_button"
@@ -68,8 +68,8 @@
 
     <ImageButton
         android:id="@+id/imgBtnRight"
-        android:layout_width="@dimen/spacing_l"
-        android:layout_height="@dimen/spacing_l"
+        android:layout_width="@dimen/toolbar_button_size"
+        android:layout_height="@dimen/toolbar_button_size"
         android:layout_marginEnd="@dimen/spacing_m"
         android:background="@color/colorTransparent"
         android:contentDescription="@string/toolbar_button"

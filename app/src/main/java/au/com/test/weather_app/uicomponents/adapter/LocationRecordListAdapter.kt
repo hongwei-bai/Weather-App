@@ -1,4 +1,4 @@
-package au.com.test.weather_app.components.adapter
+package au.com.test.weather_app.uicomponents.adapter
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
 import au.com.test.weather_app.R
-import au.com.test.weather_app.components.adapter.LocationRecordListAdapter.WorkMode.Default
+import au.com.test.weather_app.uicomponents.adapter.LocationRecordListAdapter.WorkMode.Default
 import au.com.test.weather_app.data.domain.entities.WeatherData
 
 class LocationRecordListAdapter(private val context: Context) :
