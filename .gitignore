@@ -38,13 +38,13 @@ hs_err_pid*
 .externalNativeBuild
 .cxx
 
-# Signature
-gradle.properties
-keystore/
+# Signature. These would be turned on for a real project.
+#keystore/
 #*.jks
 *.pepk
 
 # requirement docs
+storyboard/
 
 # buildings
 app/release/
