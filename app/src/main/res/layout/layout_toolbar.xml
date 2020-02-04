@@ -46,7 +46,7 @@
         android:layout_marginStart="@dimen/spacing_m"
         android:layout_marginEnd="@dimen/spacing_m"
         android:textAlignment="center"
-        android:textAppearance="@style/WeatherAppTheme.Current.Title"
+        android:textAppearance="@style/WeatherAppTheme.Toolbar.Title"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@id/editTxtSearh"

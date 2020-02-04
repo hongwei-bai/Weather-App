@@ -19,8 +19,7 @@ class LocationRecordViewModel @Inject constructor(
         private val TAG = LocationRecordViewModel::class.java.simpleName
     }
 
-    var recentRecords: LiveData<PagedList<WeatherData>> =
-        weatherRepository.getAllLocationRecordsSortByLatestUpdate()
+    var recentRecords: LiveData<PagedList<WeatherData>> = weatherRepository.getAllLocationRecordsSortByLatestUpdate()
 
     fun go() {
 

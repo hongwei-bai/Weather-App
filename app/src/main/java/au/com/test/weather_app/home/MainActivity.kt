@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.Context
 import android.location.LocationManager
 import android.os.Bundle
-import android.util.Log
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.DividerItemDecoration.VERTICAL
@@ -12,19 +11,19 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import au.com.test.weather_app.R
 import au.com.test.weather_app.data.domain.entities.WeatherData
-import au.com.test.weather_app.uicomponents.WeatherToolBar.ToolbarButton.LeftButton
-import au.com.test.weather_app.uicomponents.WeatherToolBar.ToolbarButton.LeftButtonOnSearchMode
-import au.com.test.weather_app.uicomponents.WeatherToolBar.ToolbarButton.RightButtonOnSearchMode
-import au.com.test.weather_app.uicomponents.adapter.LocationRecordListAdapter
 import au.com.test.weather_app.di.base.BaseActivity
 import au.com.test.weather_app.di.components.DaggerActivityComponent
 import au.com.test.weather_app.di.modules.ActivityModule
 import au.com.test.weather_app.home.search.SearchSuggestionListAdapter
 import au.com.test.weather_app.locationrecord.LocationRecordActivity
+import au.com.test.weather_app.uicomponents.WeatherToolBar.ToolbarButton.LeftButton
+import au.com.test.weather_app.uicomponents.WeatherToolBar.ToolbarButton.LeftButtonOnSearchMode
+import au.com.test.weather_app.uicomponents.WeatherToolBar.ToolbarButton.RightButtonOnSearchMode
+import au.com.test.weather_app.uicomponents.adapter.LocationRecordListAdapter
 import au.com.test.weather_app.uicomponents.model.Default
+import au.com.test.weather_app.uicomponents.model.Error
 import au.com.test.weather_app.uicomponents.model.Loading
 import au.com.test.weather_app.uicomponents.model.Success
-import au.com.test.weather_app.uicomponents.model.Error
 import au.com.test.weather_app.util.gone
 import au.com.test.weather_app.util.show
 import com.google.android.material.snackbar.Snackbar
@@ -81,6 +80,7 @@ class MainActivity : BaseActivity(), SwipeRefreshLayout.OnRefreshListener {
     override fun onBackPressed() {
         if (layoutToolbar.isOnSearchMode()) {
             layoutToolbar.onLostFocus()
+            resetSearchSuggestion()
         } else {
             super.onBackPressed()
         }

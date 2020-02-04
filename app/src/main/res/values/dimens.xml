@@ -8,7 +8,9 @@
     <dimen name="spacing_xl">32dp</dimen>
     <dimen name="spacing_xxl">64dp</dimen>
 
-    <dimen name="toolbar_button_size">32dp</dimen>
+    <dimen name="toolbar_button_size">28dp</dimen>
     <dimen name="toolbar_height">60dp</dimen>
     <dimen name="toolbar_edittext_height">45dp</dimen>
+    <dimen name="search_suggestion_item_height">32dp</dimen>
+
 </resources>

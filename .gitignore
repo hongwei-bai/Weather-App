@@ -44,6 +44,8 @@ keystore/
 #*.jks
 *.pepk
 
+# requirement docs
+
 # buildings
 app/release/
 app/debug/
