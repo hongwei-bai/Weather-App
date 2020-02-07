@@ -16,9 +16,7 @@ import au.com.test.weather_app.di.components.DaggerActivityComponent
 import au.com.test.weather_app.di.modules.ActivityModule
 import au.com.test.weather_app.home.search.SearchSuggestionListAdapter
 import au.com.test.weather_app.locationrecord.LocationRecordActivity
-import au.com.test.weather_app.uicomponents.WeatherToolBar.ToolbarButton.LeftButton
-import au.com.test.weather_app.uicomponents.WeatherToolBar.ToolbarButton.LeftButtonOnSearchMode
-import au.com.test.weather_app.uicomponents.WeatherToolBar.ToolbarButton.RightButtonOnSearchMode
+import au.com.test.weather_app.uicomponents.WeatherToolBar.ToolbarButton.*
 import au.com.test.weather_app.uicomponents.adapter.LocationRecordListAdapter
 import au.com.test.weather_app.uicomponents.model.Default
 import au.com.test.weather_app.uicomponents.model.Error
@@ -74,7 +72,7 @@ class MainActivity : BaseActivity(), SwipeRefreshLayout.OnRefreshListener {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
-        getWeatherForCurrentLocation()
+        requestWeatherForCurrentLocation()
     }
 
     override fun onBackPressed() {
@@ -198,7 +196,7 @@ class MainActivity : BaseActivity(), SwipeRefreshLayout.OnRefreshListener {
                     LeftButton -> startActivity(LocationRecordActivity.intent(context))
                     LeftButtonOnSearchMode -> {
                         resetSearchSuggestion()
-                        getWeatherForCurrentLocation()
+                        requestWeatherForCurrentLocation()
                     }
                     RightButtonOnSearchMode -> {
                         resetSearchSuggestion()
@@ -216,8 +214,9 @@ class MainActivity : BaseActivity(), SwipeRefreshLayout.OnRefreshListener {
     private fun hasLocationPermission(): Boolean =
         EasyPermissions.hasPermissions(this, Manifest.permission.ACCESS_FINE_LOCATION)
 
-    private fun getWeatherForCurrentLocation() {
+    private fun requestWeatherForCurrentLocation() {
         if (hasLocationPermission()) {
+            layoutSwipeRefresh.isRefreshing = true
             try {
                 (getSystemService(Context.LOCATION_SERVICE) as LocationManager)
                     .subscribeCurrentLocation { viewModel.fetch(it.latitude, it.longitude) }
