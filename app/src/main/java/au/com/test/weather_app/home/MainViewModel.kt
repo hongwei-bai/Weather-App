@@ -23,6 +23,7 @@ import au.com.test.weather_app.util.PerformanceUtil
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.lang.IllegalArgumentException
 import java.util.regex.Pattern
 import javax.inject.Inject
 
@@ -51,8 +52,23 @@ class MainViewModel @Inject constructor(
         publishViewStateError(exception)
     }
 
-    fun go() {
-        fetchLatestLocation()
+    fun go() = launch {
+        val record = fetchLatestLocationRecord()
+        if (record != null) {
+            fetch(record)
+        } else {
+            publishViewStateDefault()
+        }
+    }
+
+    fun fetch(input: String) = parseInput(input).run { fetch(first, second) }
+
+    fun fetch(lat: Double, lon: Double) = fetchWeather { fetchWeatherByCoordinate(lat, lon) }
+
+    fun fetch(data: WeatherData) = when (data.getQueryGroup()) {
+        CityId -> fetchWeather { fetchWeatherByCityId(data.cityId) }
+        ZipCode -> fetchWeather(data.zipCode) { fetchWeatherByZipCode(data.zipCode, data.countryCode) }
+        Corrdinate -> fetchWeather { fetchWeatherByCoordinate(data.latitude, data.longitude) }
     }
 
     fun initializeCityIndexTable() {
@@ -77,49 +93,7 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun fetch(input: String) {
-        logger.i(TAG, "fetch(): input string: $input")
-        val info = parseInput(input)
-        logger.i(TAG, "fetch(): parsed keyWord: ${info.first}, countryCode: ${info.second}")
-        fetch(info.first, info.second)
-    }
-
-    fun fetch(lat: Double, lon: Double) {
-        publishViewStateLoading()
-        uiScope.launch(handler) {
-            withContext(contextProvider.IO) {
-                logger.i(TAG, "fetch(lat, lon): queryWeatherByCoordinate lat: $lat, lon: $lon")
-                weatherRepository.queryWeatherByCoordinate(lat, lon)
-            }?.let {
-                logger.i(TAG, "fetch(lat, lon): new current weather: $it")
-                postProcessFetchedData(it)
-            }
-        }
-    }
-
-    fun fetch(data: WeatherData) {
-        publishViewStateLoading()
-        uiScope.launch(handler) {
-            withContext(contextProvider.IO) {
-                val queryGroup = data.getQueryGroup()
-                logger.i(TAG, "fetch(WeatherData): last location record: ${data.cityName}, zip: ${data.zipCode}, location: ${data.latitude}, ${data.longitude}, queryGroup: $queryGroup")
-                when (queryGroup) {
-                    CityId -> weatherRepository.queryWeatherById(data.cityId)
-                    ZipCode -> weatherRepository.queryWeatherByZipCode(
-                        data.zipCode,
-                        data.countryCode
-                    )
-                    Corrdinate -> {
-                        weatherRepository.queryWeatherByCoordinate(data.latitude, data.longitude)
-                    }
-                }
-            }?.let {
-                logger.i(TAG, "fetch(WeatherData): new current weather: $it")
-                postProcessFetchedData(it, data.zipCode)
-            }
-        }
-    }
-
+    // TODO top level function, to simplify.
     fun fetch(keyWord: String, countryCode: String) {
         publishViewStateLoading()
         var zipCode: Long? = null
@@ -138,6 +112,53 @@ class MainViewModel @Inject constructor(
             }
         }
     }
+
+    // below is details flows
+    private fun fetchWeather(zipCode: Long? = null, action: suspend () -> WeatherData) {
+        launch {
+            publishViewStateLoading()
+            val weather = action.invoke()
+            publishViewStateSuccess(weather)
+            updateLocationRecords(weather, zipCode)
+        }
+    }
+
+    private fun launch(action: suspend () -> Unit) {
+        uiScope.launch(handler) {
+            action.invoke()
+        }
+    }
+
+    private suspend fun fetchLatestLocationRecord(): WeatherData =
+        withContext(contextProvider.IO) {
+            weatherRepository.getLastLocationRecord() ?: throw IllegalArgumentException()
+        }
+
+    private suspend fun fetchWeatherByCityId(cityId: Long?): WeatherData =
+        withContext(contextProvider.IO) {
+            logger.i(TAG, "fetch(): queryWeatherByCityId cityId: $cityId")
+            val r = weatherRepository.queryWeatherById(cityId)
+            logger.e(TAG, "r: $r")
+            r ?: throw IllegalArgumentException()
+        }
+
+    private suspend fun fetchWeatherByCityName(cityName: String, countryCode: String): WeatherData =
+        withContext(contextProvider.IO) {
+            logger.i(TAG, "fetch(): queryWeatherByCityName zip: $cityName, countryCode: $countryCode")
+            weatherRepository.queryWeatherByCityName(cityName, countryCode) ?: throw IllegalArgumentException()
+        }
+
+    private suspend fun fetchWeatherByZipCode(zipCode: Long?, countryCode: String?): WeatherData =
+        withContext(contextProvider.IO) {
+            logger.i(TAG, "fetch(): queryWeatherByZipCode zip: $zipCode, countryCode: $countryCode")
+            weatherRepository.queryWeatherByZipCode(zipCode, countryCode) ?: throw IllegalArgumentException()
+        }
+
+    private suspend fun fetchWeatherByCoordinate(lat: Double, lon: Double): WeatherData =
+        withContext(contextProvider.IO) {
+            logger.i(TAG, "fetch(lat, lon): queryWeatherByCoordinate lat: $lat, lon: $lon")
+            weatherRepository.queryWeatherByCoordinate(lat, lon) ?: throw IllegalArgumentException()
+        }
 
     private fun postProcessFetchedData(data: WeatherData, queryZipCode: Long? = null) {
         publishViewStateSuccess(data)
@@ -164,14 +185,6 @@ class MainViewModel @Inject constructor(
             CityId -> getLocationRecordByCityId(data.cityId)
             ZipCode -> getLocationRecordByZipCode(data.zipCode, data.countryCode)
             Corrdinate -> getLocationRecordByLocation(data.latitude, data.longitude)
-        }
-    }
-
-    private fun fetchLatestLocation() {
-        uiScope.launch(contextProvider.IO) {
-            weatherRepository.getLastLocationRecord()?.let { data ->
-                fetch(data)
-            } ?: publishViewStateDefault()
         }
     }
 
