@@ -53,8 +53,6 @@ class LocationRecordActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_location_record)
 
-        viewModel = getViewModelProvider(this).get(LocationRecordViewModel::class.java)
-        mainViewModel = getViewModelProvider(this).get(MainViewModel::class.java)
         observeViewModelState()
         initializeRecyclerView()
         initializeToolbar()

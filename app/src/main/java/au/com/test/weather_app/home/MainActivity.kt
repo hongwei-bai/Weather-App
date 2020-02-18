@@ -48,7 +48,6 @@ class MainActivity : BaseActivity(), SwipeRefreshLayout.OnRefreshListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
 
-        viewModel = getViewModelProvider(this).get(MainViewModel::class.java)
         observeViewModelState()
 
         initializeRecyclerView()
