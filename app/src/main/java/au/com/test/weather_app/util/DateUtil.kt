@@ -32,7 +32,7 @@ object DateUtil {
             )
             in ONE_DAY until ONE_DAY * 30 -> context.resources.getString(
                 R.string.days_ago,
-                (diff / ONE_MINUTE).toInt()
+                (diff / ONE_DAY).toInt()
             )
             else -> Date(time).toLocalString()
         }
