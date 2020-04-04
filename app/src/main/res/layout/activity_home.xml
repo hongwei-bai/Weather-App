@@ -33,7 +33,7 @@
                 android:id="@+id/recyclerLocationRecord"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintBottom_toTopOf="@id/adView"
                 app:layout_constraintTop_toBottomOf="@id/layoutCurrentLocationWeather" />
 
             <View
@@ -44,6 +44,13 @@
                 android:visibility="gone"
                 app:layout_constraintTop_toBottomOf="@id/layoutCurrentLocationWeather" />
 
+            <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/adView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                ads:adSize="BANNER"
+                ads:adUnitId="ca-app-pub-9729200165875962/1149212093"
+                ads:layout_constraintBottom_toBottomOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 

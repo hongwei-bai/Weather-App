@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Context
 import android.location.LocationManager
 import android.os.Bundle
+import android.util.Log
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.DividerItemDecoration.VERTICAL
@@ -22,8 +23,11 @@ import au.com.test.weather_app.uicomponents.model.Default
 import au.com.test.weather_app.uicomponents.model.Error
 import au.com.test.weather_app.uicomponents.model.Loading
 import au.com.test.weather_app.uicomponents.model.Success
+import au.com.test.weather_app.util.Logger
 import au.com.test.weather_app.util.gone
 import au.com.test.weather_app.util.show
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.MobileAds
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.layout_toolbar.*
@@ -57,6 +61,8 @@ class MainActivity : BaseActivity(), SwipeRefreshLayout.OnRefreshListener {
         initializeSwipeRefreshLayout()
 
         viewModel.initializeCityIndexTable()
+
+        loadAdMobContent()
     }
 
     override fun onResume() {
@@ -96,6 +102,34 @@ class MainActivity : BaseActivity(), SwipeRefreshLayout.OnRefreshListener {
             .activityModule(ActivityModule(this))
             .build()
             .inject(this)
+    }
+
+    private fun loadAdMobContent() {
+        MobileAds.initialize(
+            this
+        ) {
+            Log.i(Logger.TAG_APP, "MobileAds initialize completed: $it")
+
+            val adRequest = AdRequest.Builder()
+                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
+                .build()
+            adView.loadAd(adRequest)
+
+            // Test Ads
+//            val testDeviceIds = Arrays.asList("33BE2250B43518CCDA7DE426D04EE231")
+//            val configuration =
+//                RequestConfiguration.Builder().setTestDeviceIds(testDeviceIds).build()
+//            MobileAds.setRequestConfiguration(configuration)
+
+            // Test Ads for layout.xml
+//            Ad format	Sample ad unit ID
+//            Banner	ca-app-pub-3940256099942544/6300978111
+//            Interstitial	ca-app-pub-3940256099942544/1033173712
+//            Interstitial Video	ca-app-pub-3940256099942544/8691691433
+//            Rewarded Video	ca-app-pub-3940256099942544/5224354917
+//            Native Advanced	ca-app-pub-3940256099942544/2247696110
+//            Native Advanced Video	ca-app-pub-3940256099942544/1044960115
+        }
     }
 
     private fun observeViewModelState() {
